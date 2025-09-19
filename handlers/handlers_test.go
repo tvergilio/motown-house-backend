@@ -1,7 +1,9 @@
 package handlers
 
 import (
+	"bytes"
 	"encoding/json"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -72,4 +74,68 @@ func Test_GetAlbums_CorrectAlbumCount(t *testing.T) {
 	var resp []Album
 	_ = json.Unmarshal(w.Body.Bytes(), &resp)
 	assert.Equal(t, 3, len(resp), "should return 3 albums")
+}
+
+func Test_GetAlbumByID_Found(t *testing.T) {
+	resetAlbums()
+	w := httptest.NewRecorder()
+	c, _ := gin.CreateTestContext(w)
+	c.Params = gin.Params{{Key: "id", Value: "101"}}
+
+	GetAlbumByID(c)
+
+	assert.Equal(t, http.StatusOK, w.Code)
+	var album Album
+	err := json.Unmarshal(w.Body.Bytes(), &album)
+	assert.NoError(t, err)
+	assert.Equal(t, "Thriller", album.Title)
+	assert.Equal(t, "Michael Jackson", album.Artist)
+	assert.Equal(t, 42.99, album.Price)
+}
+
+func Test_GetAlbumByID_NotFound(t *testing.T) {
+	resetAlbums()
+	w := httptest.NewRecorder()
+	c, _ := gin.CreateTestContext(w)
+	c.Params = gin.Params{{Key: "id", Value: "999"}}
+
+	GetAlbumByID(c)
+
+	assert.Equal(t, http.StatusNotFound, w.Code)
+	assert.Contains(t, w.Body.String(), "album not found")
+}
+
+func Test_PostAlbums_Success(t *testing.T) {
+	resetAlbums()
+	w := httptest.NewRecorder()
+	c, _ := gin.CreateTestContext(w)
+
+	album := Album{ID: "104", Title: "Bad", Artist: "Michael Jackson", Price: 29.99}
+	jsonBytes, _ := json.Marshal(album)
+	c.Request = httptest.NewRequest("POST", "/albums", io.NopCloser(bytes.NewReader(jsonBytes)))
+	c.Request.Header.Set("Content-Type", "application/json")
+
+	PostAlbums(c)
+
+	assert.Equal(t, http.StatusCreated, w.Code)
+	var resp Album
+	err := json.Unmarshal(w.Body.Bytes(), &resp)
+	assert.NoError(t, err)
+	assert.Equal(t, album.Title, resp.Title)
+	assert.Equal(t, album.Artist, resp.Artist)
+}
+
+func Test_PostAlbums_InvalidJSON(t *testing.T) {
+	resetAlbums()
+	w := httptest.NewRecorder()
+	c, _ := gin.CreateTestContext(w)
+
+	c.Request = httptest.NewRequest("POST", "/albums", io.NopCloser(bytes.NewReader([]byte("invalid json"))))
+	c.Request.Header.Set("Content-Type", "application/json")
+
+	PostAlbums(c)
+
+	// Handler returns 400 on invalid JSON
+	assert.Equal(t, http.StatusBadRequest, w.Code)
+	assert.Empty(t, w.Body.String())
 }
