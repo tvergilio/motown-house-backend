@@ -2,43 +2,52 @@ package handlers
 
 import (
 	"net/http"
+	"strconv"
 
+	"example.com/web-service-gin/repository"
 	"github.com/gin-gonic/gin"
 )
 
-type Album struct {
-	ID     string  `json:"id"`
-	Title  string  `json:"title"`
-	Artist string  `json:"artist"`
-	Price  float64 `json:"price"`
+type AlbumHandler struct {
+	Repo repository.AlbumRepository
 }
 
-var Albums = []Album{
-	{ID: "1", Title: "Blue Train", Artist: "John Coltrane", Price: 56.99},
-	{ID: "2", Title: "Jeru", Artist: "Gerry Mulligan", Price: 17.99},
-	{ID: "3", Title: "Sarah Vaughan and Clifford Brown", Artist: "Sarah Vaughan", Price: 39.99},
+func NewAlbumHandler(repo repository.AlbumRepository) *AlbumHandler {
+	return &AlbumHandler{Repo: repo}
 }
 
-func GetAlbums(c *gin.Context) {
-	c.IndentedJSON(http.StatusOK, Albums)
-}
-
-func GetAlbumByID(c *gin.Context) {
-	id := c.Param("id")
-	for _, a := range Albums {
-		if a.ID == id {
-			c.IndentedJSON(http.StatusOK, a)
-			return
-		}
-	}
-	c.IndentedJSON(http.StatusNotFound, gin.H{"message": "album not found"})
-}
-
-func PostAlbums(c *gin.Context) {
-	var newAlbum Album
-	if err := c.BindJSON(&newAlbum); err != nil {
+func (h *AlbumHandler) GetAlbums(c *gin.Context) {
+	albums, err := h.Repo.GetAll()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	Albums = append(Albums, newAlbum)
+	c.IndentedJSON(http.StatusOK, albums)
+}
+
+func (h *AlbumHandler) GetAlbumByID(c *gin.Context) {
+	idStr := c.Param("id")
+	if _, err := strconv.Atoi(idStr); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid id"})
+		return
+	}
+	album, err := h.Repo.GetByID(idStr)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"message": "album not found"})
+		return
+	}
+	c.IndentedJSON(http.StatusOK, album)
+}
+
+func (h *AlbumHandler) PostAlbums(c *gin.Context) {
+	var newAlbum repository.Album
+	if err := c.BindJSON(&newAlbum); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	if err := h.Repo.Create(newAlbum); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
 	c.IndentedJSON(http.StatusCreated, newAlbum)
 }
