@@ -51,3 +51,17 @@ func (h *AlbumHandler) PostAlbums(c *gin.Context) {
 	}
 	c.IndentedJSON(http.StatusCreated, newAlbum)
 }
+
+func (h *AlbumHandler) DeleteAlbum(c *gin.Context) {
+	idStr := c.Param("id")
+	if _, err := strconv.Atoi(idStr); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid id"})
+		return
+	}
+	err := h.Repo.Delete(idStr)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"message": "album not found"})
+		return
+	}
+	c.Status(http.StatusNoContent)
+}

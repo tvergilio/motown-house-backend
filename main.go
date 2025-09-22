@@ -55,8 +55,9 @@ func main() {
 	router.GET("/albums", handler.GetAlbums)
 	router.GET("/albums/:id", handler.GetAlbumByID)
 	router.POST("/albums", handler.PostAlbums)
+	router.DELETE("/albums/:id", handler.DeleteAlbum)
 
-	if err := router.Run("localhost:8080"); err != nil {
+	if err := router.Run(":8080"); err != nil {
 		log.Fatalf("Failed to run server: %v", err)
 	}
 }
