@@ -9,6 +9,7 @@ import (
 	"os"
 	"testing"
 
+	"example.com/web-service-gin/repository"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 )
@@ -19,20 +20,12 @@ func TestMain(m *testing.M) {
 	os.Exit(code)
 }
 
-func resetAlbums() {
-	Albums = []Album{
-		{ID: "101", Title: "Thriller", Artist: "Michael Jackson", Price: 42.99},
-		{ID: "102", Title: "Lady Soul", Artist: "Aretha Franklin", Price: 35.50},
-		{ID: "103", Title: "What's Going On", Artist: "Marvin Gaye", Price: 39.00},
-	}
-}
-
 func Test_GetAlbums_StatusAndContent(t *testing.T) {
-	resetAlbums()
+	handler := newTestHandler()
 	w := httptest.NewRecorder()
 	c, _ := gin.CreateTestContext(w)
 
-	GetAlbums(c)
+	handler.GetAlbums(c)
 
 	assert.Equal(t, http.StatusOK, w.Code)
 	assert.Contains(t, w.Body.String(), "Thriller")
@@ -41,51 +34,51 @@ func Test_GetAlbums_StatusAndContent(t *testing.T) {
 }
 
 func Test_GetAlbums_ValidJSON(t *testing.T) {
-	resetAlbums()
+	handler := newTestHandler()
 	w := httptest.NewRecorder()
 	c, _ := gin.CreateTestContext(w)
 
-	GetAlbums(c)
+	handler.GetAlbums(c)
 
-	var resp []Album
+	var resp []repository.Album
 	err := json.Unmarshal(w.Body.Bytes(), &resp)
 	assert.NoError(t, err, "response should be valid JSON")
 }
 
 func Test_GetAlbums_ResponseIsArray(t *testing.T) {
-	resetAlbums()
+	handler := newTestHandler()
 	w := httptest.NewRecorder()
 	c, _ := gin.CreateTestContext(w)
 
-	GetAlbums(c)
+	handler.GetAlbums(c)
 
-	var resp []Album
+	var resp []repository.Album
 	_ = json.Unmarshal(w.Body.Bytes(), &resp)
-	assert.IsType(t, []Album{}, resp, "response should be a slice of Album")
+	assert.IsType(t, []repository.Album{}, resp, "response should be a slice of Album")
 }
 
 func Test_GetAlbums_CorrectAlbumCount(t *testing.T) {
-	resetAlbums()
+	handler := newTestHandler()
 	w := httptest.NewRecorder()
 	c, _ := gin.CreateTestContext(w)
 
-	GetAlbums(c)
+	handler.GetAlbums(c)
 
-	var resp []Album
+	var resp []repository.Album
 	_ = json.Unmarshal(w.Body.Bytes(), &resp)
 	assert.Equal(t, 3, len(resp), "should return 3 albums")
 }
 
 func Test_GetAlbumByID_Found(t *testing.T) {
-	resetAlbums()
+	handler := newTestHandler()
 	w := httptest.NewRecorder()
 	c, _ := gin.CreateTestContext(w)
 	c.Params = gin.Params{{Key: "id", Value: "101"}}
 
-	GetAlbumByID(c)
+	handler.GetAlbumByID(c)
 
 	assert.Equal(t, http.StatusOK, w.Code)
-	var album Album
+	var album repository.Album
 	err := json.Unmarshal(w.Body.Bytes(), &album)
 	assert.NoError(t, err)
 	assert.Equal(t, "Thriller", album.Title)
@@ -94,31 +87,31 @@ func Test_GetAlbumByID_Found(t *testing.T) {
 }
 
 func Test_GetAlbumByID_NotFound(t *testing.T) {
-	resetAlbums()
+	handler := newTestHandler()
 	w := httptest.NewRecorder()
 	c, _ := gin.CreateTestContext(w)
 	c.Params = gin.Params{{Key: "id", Value: "999"}}
 
-	GetAlbumByID(c)
+	handler.GetAlbumByID(c)
 
 	assert.Equal(t, http.StatusNotFound, w.Code)
 	assert.Contains(t, w.Body.String(), "album not found")
 }
 
 func Test_PostAlbums_Success(t *testing.T) {
-	resetAlbums()
+	handler := newTestHandler()
 	w := httptest.NewRecorder()
 	c, _ := gin.CreateTestContext(w)
 
-	album := Album{ID: "104", Title: "Bad", Artist: "Michael Jackson", Price: 29.99}
+	album := repository.Album{ID: 104, Title: "Bad", Artist: "Michael Jackson", Price: 29.99}
 	jsonBytes, _ := json.Marshal(album)
 	c.Request = httptest.NewRequest("POST", "/albums", io.NopCloser(bytes.NewReader(jsonBytes)))
 	c.Request.Header.Set("Content-Type", "application/json")
 
-	PostAlbums(c)
+	handler.PostAlbums(c)
 
 	assert.Equal(t, http.StatusCreated, w.Code)
-	var resp Album
+	var resp repository.Album
 	err := json.Unmarshal(w.Body.Bytes(), &resp)
 	assert.NoError(t, err)
 	assert.Equal(t, album.Title, resp.Title)
@@ -126,16 +119,16 @@ func Test_PostAlbums_Success(t *testing.T) {
 }
 
 func Test_PostAlbums_InvalidJSON(t *testing.T) {
-	resetAlbums()
+	handler := newTestHandler()
 	w := httptest.NewRecorder()
 	c, _ := gin.CreateTestContext(w)
 
 	c.Request = httptest.NewRequest("POST", "/albums", io.NopCloser(bytes.NewReader([]byte("invalid json"))))
 	c.Request.Header.Set("Content-Type", "application/json")
 
-	PostAlbums(c)
+	handler.PostAlbums(c)
 
 	// Handler returns 400 on invalid JSON
 	assert.Equal(t, http.StatusBadRequest, w.Code)
-	assert.Empty(t, w.Body.String())
+	assert.NotEmpty(t, w.Body.String())
 }
