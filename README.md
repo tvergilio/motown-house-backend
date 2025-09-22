@@ -13,7 +13,7 @@ This project is based on the official Go tutorial: [Tutorial: Developing a RESTf
 
 1.  **Clone the repository:**
     ```sh
-    git clone https://github.com/gin-gonic/gin.git
+    git clone https://github.com/tvergilio/web-service-gin
     cd web-service-gin
     ```
 
