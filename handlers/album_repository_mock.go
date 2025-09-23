@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"os"
-	"strconv"
 
 	"example.com/web-service-gin/repository"
 )
@@ -17,9 +16,9 @@ func (m *mockAlbumRepo) GetAll() ([]repository.Album, error) {
 	return m.albums, nil
 }
 
-func (m *mockAlbumRepo) GetByID(id string) (repository.Album, error) {
+func (m *mockAlbumRepo) GetByID(id int) (repository.Album, error) {
 	for _, a := range m.albums {
-		if strconv.Itoa(a.ID) == id {
+		if a.ID == id {
 			return a, nil
 		}
 	}
@@ -31,9 +30,9 @@ func (m *mockAlbumRepo) Create(album repository.Album) error {
 	return nil
 }
 
-func (m *mockAlbumRepo) Delete(id string) error {
+func (m *mockAlbumRepo) Delete(id int) error {
 	for i, a := range m.albums {
-		if strconv.Itoa(a.ID) == id {
+		if a.ID == id {
 			m.albums = append(m.albums[:i], m.albums[i+1:]...)
 			return nil
 		}

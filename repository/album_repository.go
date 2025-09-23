@@ -9,7 +9,7 @@ type Album struct {
 
 type AlbumRepository interface {
 	GetAll() ([]Album, error)
-	GetByID(id string) (Album, error)
+	GetByID(id int) (Album, error)
 	Create(album Album) error
-	Delete(id string) error
+	Delete(id int) error
 }
