@@ -31,11 +31,11 @@ type AlbumIDUri struct {
 }
 
 // getAlbumIDFromUri extracts and validates the `id` URI parameter from the context.
-// Returns the id as int and true if successful, otherwise writes an error response and returns false.
+// Returns the id as int and true if successful, otherwise writes a standardised error response and returns false.
 func getAlbumIDFromUri(c *gin.Context) (int, bool) {
 	var uri AlbumIDUri
 	if err := c.ShouldBindUri(&uri); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid id"})
+		c.JSON(http.StatusBadRequest, gin.H{"message": "invalid album ID"})
 		return 0, false
 	}
 	return uri.ID, true

@@ -164,3 +164,27 @@ func Test_DeleteAlbum_NotFound(t *testing.T) {
 	assert.Equal(t, http.StatusNotFound, w.Code)
 	assert.Contains(t, w.Body.String(), "album not found")
 }
+
+func Test_GetAlbumByID_InvalidID(t *testing.T) {
+	handler := newTestHandler()
+	r := setupRouter(handler)
+	w := httptest.NewRecorder()
+	req := httptest.NewRequest("GET", "/albums/abc", nil)
+
+	r.ServeHTTP(w, req)
+
+	assert.Equal(t, http.StatusBadRequest, w.Code)
+	assert.Contains(t, w.Body.String(), "invalid album ID")
+}
+
+func Test_DeleteAlbum_InvalidID(t *testing.T) {
+	handler := newTestHandler()
+	r := setupRouter(handler)
+	w := httptest.NewRecorder()
+	req := httptest.NewRequest("DELETE", "/albums/abc", nil)
+
+	r.ServeHTTP(w, req)
+
+	assert.Equal(t, http.StatusBadRequest, w.Code)
+	assert.Contains(t, w.Body.String(), "invalid album ID")
+}
