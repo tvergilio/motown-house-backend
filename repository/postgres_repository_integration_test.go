@@ -120,7 +120,7 @@ func TestPostgresAlbumRepository_GetByID(t *testing.T) {
 	require.NoError(t, err)
 	require.NotEmpty(t, albums)
 	id := albums[0].ID
-	got, err := repo.GetByID(fmt.Sprintf("%d", id))
+	got, err := repo.GetByID(id)
 	require.NoError(t, err)
 	require.Equal(t, "ABC", got.Title)
 }
@@ -136,7 +136,7 @@ func TestPostgresAlbumRepository_Delete(t *testing.T) {
 	require.NoError(t, err)
 	require.NotEmpty(t, albums)
 	id := albums[0].ID
-	err = repo.Delete(fmt.Sprintf("%d", id))
+	err = repo.Delete(id)
 	require.NoError(t, err)
 	albums, err = repo.GetAll()
 	require.NoError(t, err)

@@ -27,11 +27,12 @@ func (h *AlbumHandler) GetAlbums(c *gin.Context) {
 
 func (h *AlbumHandler) GetAlbumByID(c *gin.Context) {
 	idStr := c.Param("id")
-	if _, err := strconv.Atoi(idStr); err != nil {
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid id"})
 		return
 	}
-	album, err := h.Repo.GetByID(idStr)
+	album, err := h.Repo.GetByID(id)
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"message": "album not found"})
 		return
@@ -54,11 +55,12 @@ func (h *AlbumHandler) PostAlbums(c *gin.Context) {
 
 func (h *AlbumHandler) DeleteAlbum(c *gin.Context) {
 	idStr := c.Param("id")
-	if _, err := strconv.Atoi(idStr); err != nil {
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid id"})
 		return
 	}
-	err := h.Repo.Delete(idStr)
+	err = h.Repo.Delete(id)
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"message": "album not found"})
 		return
