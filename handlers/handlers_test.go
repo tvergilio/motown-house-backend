@@ -69,13 +69,22 @@ func Test_GetAlbums_CorrectAlbumCount(t *testing.T) {
 	assert.Equal(t, 3, len(resp), "should return 3 albums")
 }
 
+func setupRouter(handler *AlbumHandler) *gin.Engine {
+	r := gin.Default()
+	r.GET("/albums", handler.GetAlbums)
+	r.GET("/albums/:id", handler.GetAlbumByID)
+	r.POST("/albums", handler.PostAlbums)
+	r.DELETE("/albums/:id", handler.DeleteAlbum)
+	return r
+}
+
 func Test_GetAlbumByID_Found(t *testing.T) {
 	handler := newTestHandler()
+	r := setupRouter(handler)
 	w := httptest.NewRecorder()
-	c, _ := gin.CreateTestContext(w)
-	c.Params = gin.Params{{Key: "id", Value: "101"}}
+	req := httptest.NewRequest("GET", "/albums/101", nil)
 
-	handler.GetAlbumByID(c)
+	r.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusOK, w.Code)
 	var album repository.Album
@@ -88,11 +97,11 @@ func Test_GetAlbumByID_Found(t *testing.T) {
 
 func Test_GetAlbumByID_NotFound(t *testing.T) {
 	handler := newTestHandler()
+	r := setupRouter(handler)
 	w := httptest.NewRecorder()
-	c, _ := gin.CreateTestContext(w)
-	c.Params = gin.Params{{Key: "id", Value: "999"}}
+	req := httptest.NewRequest("GET", "/albums/999", nil)
 
-	handler.GetAlbumByID(c)
+	r.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusNotFound, w.Code)
 	assert.Contains(t, w.Body.String(), "album not found")
@@ -131,4 +140,27 @@ func Test_PostAlbums_InvalidJSON(t *testing.T) {
 	// Handler returns 400 on invalid JSON
 	assert.Equal(t, http.StatusBadRequest, w.Code)
 	assert.NotEmpty(t, w.Body.String())
+}
+
+func Test_DeleteAlbum_Success(t *testing.T) {
+	handler := newTestHandler()
+	r := setupRouter(handler)
+	w := httptest.NewRecorder()
+	req := httptest.NewRequest("DELETE", "/albums/101", nil)
+
+	r.ServeHTTP(w, req)
+
+	assert.Equal(t, http.StatusNoContent, w.Code)
+}
+
+func Test_DeleteAlbum_NotFound(t *testing.T) {
+	handler := newTestHandler()
+	r := setupRouter(handler)
+	w := httptest.NewRecorder()
+	req := httptest.NewRequest("DELETE", "/albums/999", nil)
+
+	r.ServeHTTP(w, req)
+
+	assert.Equal(t, http.StatusNotFound, w.Code)
+	assert.Contains(t, w.Body.String(), "album not found")
 }

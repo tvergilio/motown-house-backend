@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"net/http"
-	"strconv"
 
 	"example.com/web-service-gin/repository"
 	"github.com/gin-gonic/gin"
@@ -25,14 +24,19 @@ func (h *AlbumHandler) GetAlbums(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, albums)
 }
 
+// AlbumIDUri is used for binding and validating the `id` URI parameter in routes like /albums/:id.
+// This struct is specific to HTTP request handling and should not be used in the domain or repository layers.
+type AlbumIDUri struct {
+	ID int `uri:"id" binding:"required"`
+}
+
 func (h *AlbumHandler) GetAlbumByID(c *gin.Context) {
-	idStr := c.Param("id")
-	id, err := strconv.Atoi(idStr)
-	if err != nil {
+	var uri AlbumIDUri
+	if err := c.ShouldBindUri(&uri); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid id"})
 		return
 	}
-	album, err := h.Repo.GetByID(id)
+	album, err := h.Repo.GetByID(uri.ID)
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"message": "album not found"})
 		return
@@ -54,13 +58,12 @@ func (h *AlbumHandler) PostAlbums(c *gin.Context) {
 }
 
 func (h *AlbumHandler) DeleteAlbum(c *gin.Context) {
-	idStr := c.Param("id")
-	id, err := strconv.Atoi(idStr)
-	if err != nil {
+	var uri AlbumIDUri
+	if err := c.ShouldBindUri(&uri); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid id"})
 		return
 	}
-	err = h.Repo.Delete(id)
+	err := h.Repo.Delete(uri.ID)
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"message": "album not found"})
 		return
