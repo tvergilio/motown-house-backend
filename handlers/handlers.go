@@ -30,13 +30,23 @@ type AlbumIDUri struct {
 	ID int `uri:"id" binding:"required"`
 }
 
-func (h *AlbumHandler) GetAlbumByID(c *gin.Context) {
+// getAlbumIDFromUri extracts and validates the `id` URI parameter from the context.
+// Returns the id as int and true if successful, otherwise writes an error response and returns false.
+func getAlbumIDFromUri(c *gin.Context) (int, bool) {
 	var uri AlbumIDUri
 	if err := c.ShouldBindUri(&uri); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid id"})
+		return 0, false
+	}
+	return uri.ID, true
+}
+
+func (h *AlbumHandler) GetAlbumByID(c *gin.Context) {
+	id, ok := getAlbumIDFromUri(c)
+	if !ok {
 		return
 	}
-	album, err := h.Repo.GetByID(uri.ID)
+	album, err := h.Repo.GetByID(id)
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"message": "album not found"})
 		return
@@ -58,12 +68,11 @@ func (h *AlbumHandler) PostAlbums(c *gin.Context) {
 }
 
 func (h *AlbumHandler) DeleteAlbum(c *gin.Context) {
-	var uri AlbumIDUri
-	if err := c.ShouldBindUri(&uri); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid id"})
+	id, ok := getAlbumIDFromUri(c)
+	if !ok {
 		return
 	}
-	err := h.Repo.Delete(uri.ID)
+	err := h.Repo.Delete(id)
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"message": "album not found"})
 		return
