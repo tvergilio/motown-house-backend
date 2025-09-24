@@ -398,21 +398,17 @@ func Test_SearchAlbums_ValidTerm(t *testing.T) {
 
 	r.ServeHTTP(w, req)
 
-	// This test will make an actual API call to iTunes, so we expect 200 or 502 depending on network
-	if w.Code == http.StatusOK {
-		// Verify response is valid JSON array
-		var results []repository.AlbumResponse
-		err := json.Unmarshal(w.Body.Bytes(), &results)
-		assert.NoError(t, err, "response should be valid JSON")
-	} else {
-		// Network error is acceptable in test environment
-		assert.Contains(t, []int{http.StatusBadGateway, http.StatusInternalServerError}, w.Code)
-	}
+	// Should always return 200 with mock data
+	assert.Equal(t, http.StatusOK, w.Code)
+	var results []repository.AlbumResponse
+	err := json.Unmarshal(w.Body.Bytes(), &results)
+	assert.NoError(t, err, "response should be valid JSON")
+	assert.Len(t, results, 2, "mock should return 2 albums")
+	assert.Equal(t, "Thriller", results[0].Title)
+	assert.Equal(t, "Michael Jackson", results[0].Artist)
 }
 
 func Test_SearchAlbums_ValidResponse(t *testing.T) {
-	// This is an integration test that requires network access
-	// In a production environment, we might need to mock the HTTP client
 	handler := newTestHandler()
 	r := setupRouter(handler)
 	w := httptest.NewRecorder()
@@ -420,18 +416,19 @@ func Test_SearchAlbums_ValidResponse(t *testing.T) {
 
 	r.ServeHTTP(w, req)
 
-	// Check if we got a successful response (network dependent)
-	if w.Code == http.StatusOK {
-		var results []repository.AlbumResponse
-		err := json.Unmarshal(w.Body.Bytes(), &results)
-		assert.NoError(t, err)
+	// Should always return 200 with mock data
+	assert.Equal(t, http.StatusOK, w.Code)
+	var results []repository.AlbumResponse
+	err := json.Unmarshal(w.Body.Bytes(), &results)
+	assert.NoError(t, err)
 
-		// Verify structure of response
-		if len(results) > 0 {
-			result := results[0]
-			assert.NotEmpty(t, result.Title, "title should not be empty")
-			assert.NotEmpty(t, result.Artist, "artist should not be empty")
-			// Other fields might be empty depending on iTunes data
-		}
+	// Verify mock data structure
+	assert.Len(t, results, 2, "mock should return 2 albums")
+	for _, result := range results {
+		assert.NotEmpty(t, result.Title, "title should not be empty")
+		assert.NotEmpty(t, result.Artist, "artist should not be empty")
+		assert.NotEmpty(t, result.Genre, "genre should not be empty")
+		assert.Greater(t, result.Price, 0.0, "price should be greater than 0")
+		assert.Greater(t, result.Year, 0, "year should be greater than 0")
 	}
 }

@@ -32,12 +32,22 @@ type ITunesRepository interface {
 // ITunesRepositoryImpl implements ITunesRepository
 type ITunesRepositoryImpl struct {
 	baseURL string
+	client  *http.Client
 }
 
-// NewITunesRepository creates a new iTunes repository
+// NewITunesRepository creates a new iTunes repository with a default HTTP client
 func NewITunesRepository() ITunesRepository {
 	return &ITunesRepositoryImpl{
 		baseURL: "https://itunes.apple.com/search",
+		client:  &http.Client{Timeout: 10 * time.Second},
+	}
+}
+
+// NewITunesRepositoryWithClient creates a new iTunes repository with an injected HTTP client
+func NewITunesRepositoryWithClient(client *http.Client) ITunesRepository {
+	return &ITunesRepositoryImpl{
+		baseURL: "https://itunes.apple.com/search",
+		client:  client,
 	}
 }
 
@@ -52,12 +62,11 @@ func (r *ITunesRepositoryImpl) Search(term string) ([]AlbumResponse, error) {
 
 	// Make a request to iTunes Search API
 	itunesURL := fmt.Sprintf("%s?term=%s&entity=album", r.baseURL, encodedTerm)
-	client := &http.Client{Timeout: 10 * time.Second}
-	resp, err := client.Get(itunesURL)
+	resp, err := r.client.Get(itunesURL)
 	if err != nil {
 		return nil, fmt.Errorf("failed to fetch data from iTunes API: %w", err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	// Check if the iTunes API request was successful
 	if resp.StatusCode != http.StatusOK {
