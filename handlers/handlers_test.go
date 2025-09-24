@@ -93,6 +93,7 @@ func Test_GetAlbumByID_Found(t *testing.T) {
 	assert.Equal(t, "Thriller", album.Title)
 	assert.Equal(t, "Michael Jackson", album.Artist)
 	assert.Equal(t, 42.99, album.Price)
+	assert.Equal(t, 1982, album.Year)
 }
 
 func Test_GetAlbumByID_NotFound(t *testing.T) {
@@ -112,7 +113,7 @@ func Test_PostAlbums_Success(t *testing.T) {
 	w := httptest.NewRecorder()
 	c, _ := gin.CreateTestContext(w)
 
-	album := repository.Album{ID: 104, Title: "Bad", Artist: "Michael Jackson", Price: 29.99}
+	album := repository.Album{ID: 104, Title: "Bad", Artist: "Michael Jackson", Price: 29.99, Year: 1987}
 	jsonBytes, _ := json.Marshal(album)
 	c.Request = httptest.NewRequest("POST", "/albums", io.NopCloser(bytes.NewReader(jsonBytes)))
 	c.Request.Header.Set("Content-Type", "application/json")

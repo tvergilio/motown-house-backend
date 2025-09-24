@@ -5,6 +5,7 @@ type Album struct {
 	Title  string  `db:"title" json:"title"`
 	Artist string  `db:"artist" json:"artist"`
 	Price  float64 `db:"price" json:"price"`
+	Year   int     `db:"year" json:"year"`
 }
 
 type AlbumRepository interface {

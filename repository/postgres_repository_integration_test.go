@@ -84,7 +84,7 @@ func TestPostgresAlbumRepository_Create(t *testing.T) {
 	defer teardown()
 	repo := NewPostgresAlbumRepository(db)
 
-	album := Album{Title: "Where Did Our Love Go", Artist: "The Supremes", Price: 9.99}
+	album := Album{Title: "Where Did Our Love Go", Artist: "The Supremes", Price: 9.99, Year: 1964}
 	err := repo.Create(album)
 	require.NoError(t, err)
 
@@ -92,6 +92,10 @@ func TestPostgresAlbumRepository_Create(t *testing.T) {
 	require.NoError(t, err)
 	require.Len(t, albums, 1)
 	require.Equal(t, "Where Did Our Love Go", albums[0].Title)
+	require.Equal(t, "The Supremes", albums[0].Artist)
+	require.Equal(t, 9.99, albums[0].Price)
+	require.Equal(t, 1964, albums[0].Year)
+	require.NotEmpty(t, albums[0].ID)
 }
 
 // TestPostgresAlbumRepository_GetAll tests only the GetAll method.
@@ -100,13 +104,27 @@ func TestPostgresAlbumRepository_GetAll(t *testing.T) {
 	defer teardown()
 	repo := NewPostgresAlbumRepository(db)
 
-	_ = repo.Create(Album{Title: "ABC", Artist: "Jackson 5", Price: 1.0})
-	_ = repo.Create(Album{Title: "Diana", Artist: "Diana Ross", Price: 2.0})
-	_ = repo.Create(Album{Title: "Sex Machine", Artist: "James Brown", Price: 3.0})
+	_ = repo.Create(Album{Title: "ABC", Artist: "Jackson 5", Price: 1.0, Year: 1970})
+	_ = repo.Create(Album{Title: "Diana", Artist: "Diana Ross", Price: 2.0, Year: 1980})
+	_ = repo.Create(Album{Title: "Sex Machine", Artist: "James Brown", Price: 3.0, Year: 1970})
 
 	albums, err := repo.GetAll()
 	require.NoError(t, err)
-	require.Len(t, albums, 3)
+	require.NotEmpty(t, albums)
+	require.Equal(t, "ABC", albums[0].Title)
+	require.Equal(t, "Jackson 5", albums[0].Artist)
+	require.Equal(t, 1.0, albums[0].Price)
+	require.Equal(t, 1970, albums[0].Year)
+
+	require.Equal(t, "Diana", albums[1].Title)
+	require.Equal(t, "Diana Ross", albums[1].Artist)
+	require.Equal(t, 2.0, albums[1].Price)
+	require.Equal(t, 1980, albums[1].Year)
+
+	require.Equal(t, "Sex Machine", albums[2].Title)
+	require.Equal(t, "James Brown", albums[2].Artist)
+	require.Equal(t, 3.0, albums[2].Price)
+	require.Equal(t, 1970, albums[2].Year)
 }
 
 // TestPostgresAlbumRepository_GetByID tests only the GetByID method.
@@ -115,7 +133,7 @@ func TestPostgresAlbumRepository_GetByID(t *testing.T) {
 	defer teardown()
 	repo := NewPostgresAlbumRepository(db)
 
-	_ = repo.Create(Album{Title: "ABC", Artist: "Jackson 5", Price: 1.0})
+	_ = repo.Create(Album{Title: "ABC", Artist: "Jackson 5", Price: 1.0, Year: 1970})
 	albums, err := repo.GetAll()
 	require.NoError(t, err)
 	require.NotEmpty(t, albums)
@@ -123,6 +141,10 @@ func TestPostgresAlbumRepository_GetByID(t *testing.T) {
 	got, err := repo.GetByID(id)
 	require.NoError(t, err)
 	require.Equal(t, "ABC", got.Title)
+	require.Equal(t, "Jackson 5", got.Artist)
+	require.Equal(t, 1.0, got.Price)
+	require.Equal(t, 1970, got.Year)
+	require.Equal(t, id, got.ID)
 }
 
 // TestPostgresAlbumRepository_Delete tests only the Delete method.
@@ -131,7 +153,7 @@ func TestPostgresAlbumRepository_Delete(t *testing.T) {
 	defer teardown()
 	repo := NewPostgresAlbumRepository(db)
 
-	_ = repo.Create(Album{Title: "ABC", Artist: "Jackson 5", Price: 1.0})
+	_ = repo.Create(Album{Title: "ABC", Artist: "Jackson 5", Price: 1.0, Year: 1970})
 	albums, err := repo.GetAll()
 	require.NoError(t, err)
 	require.NotEmpty(t, albums)

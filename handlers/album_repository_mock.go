@@ -42,9 +42,9 @@ func (m *mockAlbumRepo) Delete(id int) error {
 
 func newTestHandler() *AlbumHandler {
 	initial := []repository.Album{
-		{ID: 101, Title: "Thriller", Artist: "Michael Jackson", Price: 42.99},
-		{ID: 102, Title: "Lady Soul", Artist: "Aretha Franklin", Price: 35.50},
-		{ID: 103, Title: "What's Going On", Artist: "Marvin Gaye", Price: 39.00},
+		{ID: 101, Title: "Thriller", Artist: "Michael Jackson", Price: 42.99, Year: 1982},
+		{ID: 102, Title: "Lady Soul", Artist: "Aretha Franklin", Price: 35.50, Year: 1968},
+		{ID: 103, Title: "What's Going On", Artist: "Marvin Gaye", Price: 39.00, Year: 1971},
 	}
 	repo := &mockAlbumRepo{albums: initial}
 	return NewAlbumHandler(repo)

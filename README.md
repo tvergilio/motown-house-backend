@@ -70,22 +70,25 @@ curl http://localhost:8080/albums
 ```json
 [
     {
-        "id": "101",
+        "id": 101,
         "title": "Thriller",
         "artist": "Michael Jackson",
-        "price": 42.99
+        "price": 42.99,
+        "year": 1982
     },
     {
-        "id": "102",
+        "id": 102,
         "title": "Lady Soul",
         "artist": "Aretha Franklin",
-        "price": 35.50
+        "price": 35.50,
+        "year": 1968
     },
     {
-        "id": "103",
+        "id": 103,
         "title": "What's Going On",
         "artist": "Marvin Gaye",
-        "price": 39.00
+        "price": 39.00,
+        "year": 1971
     }
 ]
 ```
@@ -107,10 +110,11 @@ curl http://localhost:8080/albums/102
 **Example Response (`200 OK`):**
 ```json
 {
-    "id": "102",
+    "id": 102,
     "title": "Lady Soul",
     "artist": "Aretha Franklin",
-    "price": 35.50
+    "price": 35.50,
+    "year": 1968
 }
 ```
 
@@ -132,19 +136,34 @@ curl http://localhost:8080/albums \
     --include \
     --header "Content-Type: application/json" \
     --request "POST" \
-    --data '{"id": "104","title": "Bad","artist": "Michael Jackson","price": 29.99}'
+    --data '{"id": 104,"title": "Bad","artist": "Michael Jackson","price": 29.99, "year": 1987}'
 ```
 
 **Example Response (`201 Created`):**
 ```json
 {
-    "id": "104",
+    "id": 104,
     "title": "Bad",
     "artist": "Michael Jackson",
-    "price": 29.99
+    "price": 29.99,
+    "year": 1987
 }
 ```
 
 ## Persistence Layer
 
 This project uses a PostgreSQL database for persistent storage of album data. The database connection is managed using [sqlx](https://github.com/jmoiron/sqlx) and the [lib/pq](https://github.com/lib/pq) Postgres driver. Database migrations are managed with [golang-migrate](https://github.com/golang-migrate/migrate) and are located in the `migrations/` directory. All album data is stored and retrieved from the database, ensuring data is not lost between application restarts.
+
+## Migrations
+
+Database schema migrations are managed with [golang-migrate](https://github.com/golang-migrate/migrate). Migration files are located in the `migrations/` directory.
+
+**To apply migrations:**
+```sh
+migrate -path ./migrations -database "postgres://<user>:<password>@localhost:5432/<db>?sslmode=disable" up
+```
+**To roll back the last migration:**
+```sh
+migrate -path ./migrations -database "postgres://<user>:<password>@localhost:5432/<db>?sslmode=disable" down 1
+```
+Replace `<user>`, `<password>`, and `<db>` with the values from your `.env` file.
