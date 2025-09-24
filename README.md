@@ -1,8 +1,10 @@
-# Go Gin Album API
+# Motown House API Backend
 
 A simple RESTful web service built with Go and the [Gin framework](https://github.com/gin-gonic/gin). This application provides an API to manage a collection of music albums.
 
 This project is based on the official Go tutorial: [Tutorial: Developing a RESTful API with Go and Gin](https://go.dev/doc/tutorial/web-service-gin).
+
+The frontend for this API is a Next.js project, available at: [https://github.com/tvergilio/motown-house](https://github.com/tvergilio/motown-house)
 
 ## Prerequisites
 
