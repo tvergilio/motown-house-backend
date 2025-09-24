@@ -30,6 +30,16 @@ func (m *mockAlbumRepo) Create(album repository.Album) error {
 	return nil
 }
 
+func (m *mockAlbumRepo) Update(album repository.Album) error {
+	for i, a := range m.albums {
+		if a.ID == album.ID {
+			m.albums[i] = album
+			return nil // Success
+		}
+	}
+	return os.ErrNotExist // Return error if album not found
+}
+
 func (m *mockAlbumRepo) Delete(id int) error {
 	for i, a := range m.albums {
 		if a.ID == id {

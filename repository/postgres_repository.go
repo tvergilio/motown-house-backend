@@ -32,6 +32,14 @@ func (r *PostgresAlbumRepository) Create(album Album) error {
 	return err
 }
 
+func (r *PostgresAlbumRepository) Update(album Album) error {
+	_, err := r.db.Exec(
+		"UPDATE albums SET title = $1, artist = $2, price = $3, year = $4 WHERE id = $5",
+		album.Title, album.Artist, album.Price, album.Year, album.ID,
+	)
+	return err
+}
+
 func (r *PostgresAlbumRepository) Delete(id int) error {
 	_, err := r.db.Exec("DELETE FROM albums WHERE id = $1", id)
 	return err

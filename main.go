@@ -67,6 +67,7 @@ func main() {
 	r.GET("/albums/:id", handler.GetAlbumByID)
 	r.POST("/albums", handler.PostAlbums)
 	r.DELETE("/albums/:id", handler.DeleteAlbum)
+	r.PUT("/albums/:id", handler.PutAlbum)
 
 	if err := r.Run(":8080"); err != nil {
 		log.Fatalf("Failed to run server: %v", err)

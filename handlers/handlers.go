@@ -67,6 +67,25 @@ func (h *AlbumHandler) PostAlbums(c *gin.Context) {
 	c.IndentedJSON(http.StatusCreated, newAlbum)
 }
 
+func (h *AlbumHandler) PutAlbum(c *gin.Context) {
+	id, ok := getAlbumIDFromUri(c)
+	if !ok {
+		return
+	}
+	var updatedAlbum repository.Album
+	if err := c.BindJSON(&updatedAlbum); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	updatedAlbum.ID = id
+	err := h.Repo.Update(updatedAlbum)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.IndentedJSON(http.StatusOK, updatedAlbum)
+}
+
 func (h *AlbumHandler) DeleteAlbum(c *gin.Context) {
 	id, ok := getAlbumIDFromUri(c)
 	if !ok {

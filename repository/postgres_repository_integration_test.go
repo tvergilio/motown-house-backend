@@ -147,6 +147,37 @@ func TestPostgresAlbumRepository_GetByID(t *testing.T) {
 	require.Equal(t, id, got.ID)
 }
 
+// TestPostgresAlbumRepository_Update tests only the Update method.
+func TestPostgresAlbumRepository_Update(t *testing.T) {
+	db, teardown := setupTestPostgres(t)
+	defer teardown()
+	repo := NewPostgresAlbumRepository(db)
+
+	// Create an album
+	album := Album{Title: "ABC", Artist: "Shakira", Price: 1.0, Year: 2024}
+	err := repo.Create(album)
+	require.NoError(t, err)
+
+	// Get the created album's ID
+	albums, err := repo.GetAll()
+	require.NoError(t, err)
+	require.Len(t, albums, 1)
+	id := albums[0].ID
+
+	// Update the album
+	updated := Album{ID: id, Title: "ABC", Artist: "Jackson 5", Price: 20.0, Year: 1970}
+	err = repo.Update(updated)
+	require.NoError(t, err)
+
+	// Fetch and verify the updated album
+	got, err := repo.GetByID(id)
+	require.NoError(t, err)
+	require.Equal(t, "ABC", got.Title)
+	require.Equal(t, "Jackson 5", got.Artist)
+	require.Equal(t, 20.0, got.Price)
+	require.Equal(t, 1970, got.Year)
+}
+
 // TestPostgresAlbumRepository_Delete tests only the Delete method.
 func TestPostgresAlbumRepository_Delete(t *testing.T) {
 	db, teardown := setupTestPostgres(t)

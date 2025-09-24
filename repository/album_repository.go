@@ -13,4 +13,5 @@ type AlbumRepository interface {
 	GetByID(id int) (Album, error)
 	Create(album Album) error
 	Delete(id int) error
+	Update(album Album) error
 }
