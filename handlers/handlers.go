@@ -75,6 +75,7 @@ func (h *AlbumHandler) PutAlbum(c *gin.Context) {
 	var updatedAlbum repository.Album
 	if err := c.BindJSON(&updatedAlbum); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
 	}
 	updatedAlbum.ID = id
 	err := h.Repo.Update(updatedAlbum)
