@@ -29,8 +29,8 @@ func Test_GetAlbums_StatusAndContent(t *testing.T) {
 
 	assert.Equal(t, http.StatusOK, w.Code)
 	assert.Contains(t, w.Body.String(), "Thriller")
-	assert.Contains(t, w.Body.String(), "Lady Soul")
-	assert.Contains(t, w.Body.String(), "What's Going On")
+	assert.Contains(t, w.Body.String(), "Songs in the Key of Life")
+	assert.Contains(t, w.Body.String(), "Michael Jackson")
 }
 
 func Test_GetAlbums_ValidJSON(t *testing.T) {
@@ -76,6 +76,7 @@ func setupRouter(handler *AlbumHandler) *gin.Engine {
 	r.POST("/albums", handler.PostAlbums)
 	r.PUT("/albums/:id", handler.PutAlbum)
 	r.DELETE("/albums/:id", handler.DeleteAlbum)
+	r.GET("/api/search", handler.SearchAlbums)
 	return r
 }
 
@@ -191,7 +192,7 @@ func Test_PutAlbums_NonExistentID(t *testing.T) {
 	r := setupRouter(handler)
 	w := httptest.NewRecorder()
 
-	updatedAlbum := repository.Album{ID: 999, Title: "Ghost Album", Artist: "Nobody", Price: 10.0, Year: 2000, ImageUrl: "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/8d/97/f4/8d97f427-2d17-1a51-1714-329993eb5fc1/886443546264.jpg/100x100bb.jpg", Genre: "Pop"}
+	updatedAlbum := repository.Album{ID: 999, Title: "Ghost Album", Artist: "Nobody", Price: 10.0, Year: 2000, ImageUrl: "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/8d/97/f4/8d97f427-2d17-1a51-1714-324483eb5fc1/886443546264.jpg/100x100bb.jpg", Genre: "Pop"}
 	jsonBytes, _ := json.Marshal(updatedAlbum)
 	req := httptest.NewRequest("PUT", "/albums/999", bytes.NewReader(jsonBytes))
 	req.Header.Set("Content-Type", "application/json")
@@ -228,10 +229,8 @@ func Test_PutAlbums_MissingFields(t *testing.T) {
 	req.Header.Set("Content-Type", "application/json")
 
 	r.ServeHTTP(w, req)
-	assert.Equal(t, http.StatusOK, w.Code)
-	var resp repository.Album
-	_ = json.Unmarshal(w.Body.Bytes(), &resp)
-	assert.Equal(t, "Partial", resp.Title)
+	assert.Equal(t, http.StatusBadRequest, w.Code)
+	assert.Contains(t, w.Body.String(), "imageUrl and genre are required and cannot be empty")
 }
 
 func Test_PutAlbums_InvalidFieldTypes(t *testing.T) {
@@ -282,7 +281,7 @@ func Test_PutAlbums_ExtraFields(t *testing.T) {
 	r := setupRouter(handler)
 	w := httptest.NewRecorder()
 
-	body := `{"title":"Extra","artist":"Test","price":10.0,"year":2020, "image_url": "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/8d/97/f4/8d97f427-2d27-1a51-1714-324483eb5fc1/886443546264.jpg/100x100bb.jpg", "genre": "R&B", "extra":"field"}`
+	body := `{"title":"Extra","artist":"Test","price":10.0,"year":2020, "imageUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/8d/97/f4/8d97f427-2d27-1a51-1714-324483eb5fc1/886443546264.jpg/100x100bb.jpg", "genre": "R&B", "extra":"field"}`
 	req := httptest.NewRequest("PUT", "/albums/101", bytes.NewReader([]byte(body)))
 	req.Header.Set("Content-Type", "application/json")
 
@@ -365,4 +364,71 @@ func Test_DeleteAlbum_InvalidID(t *testing.T) {
 
 	assert.Equal(t, http.StatusBadRequest, w.Code)
 	assert.Contains(t, w.Body.String(), "invalid album ID")
+}
+
+func Test_SearchAlbums_MissingTerm(t *testing.T) {
+	handler := newTestHandler()
+	r := setupRouter(handler)
+	w := httptest.NewRecorder()
+	req := httptest.NewRequest("GET", "/api/search", nil)
+
+	r.ServeHTTP(w, req)
+
+	assert.Equal(t, http.StatusBadRequest, w.Code)
+	assert.Contains(t, w.Body.String(), "term query parameter is required")
+}
+
+func Test_SearchAlbums_EmptyTerm(t *testing.T) {
+	handler := newTestHandler()
+	r := setupRouter(handler)
+	w := httptest.NewRecorder()
+	req := httptest.NewRequest("GET", "/api/search?term=", nil)
+
+	r.ServeHTTP(w, req)
+
+	assert.Equal(t, http.StatusBadRequest, w.Code)
+	assert.Contains(t, w.Body.String(), "term query parameter is required")
+}
+
+func Test_SearchAlbums_ValidTerm(t *testing.T) {
+	handler := newTestHandler()
+	r := setupRouter(handler)
+	w := httptest.NewRecorder()
+	req := httptest.NewRequest("GET", "/api/search?term=thriller", nil)
+
+	r.ServeHTTP(w, req)
+
+	// Should always return 200 with mock data
+	assert.Equal(t, http.StatusOK, w.Code)
+	var results []repository.AlbumResponse
+	err := json.Unmarshal(w.Body.Bytes(), &results)
+	assert.NoError(t, err, "response should be valid JSON")
+	assert.Len(t, results, 2, "mock should return 2 albums")
+	assert.Equal(t, "Thriller", results[0].Title)
+	assert.Equal(t, "Michael Jackson", results[0].Artist)
+}
+
+func Test_SearchAlbums_ValidResponse(t *testing.T) {
+	handler := newTestHandler()
+	r := setupRouter(handler)
+	w := httptest.NewRecorder()
+	req := httptest.NewRequest("GET", "/api/search?term=beatles", nil)
+
+	r.ServeHTTP(w, req)
+
+	// Should always return 200 with mock data
+	assert.Equal(t, http.StatusOK, w.Code)
+	var results []repository.AlbumResponse
+	err := json.Unmarshal(w.Body.Bytes(), &results)
+	assert.NoError(t, err)
+
+	// Verify mock data structure
+	assert.Len(t, results, 2, "mock should return 2 albums")
+	for _, result := range results {
+		assert.NotEmpty(t, result.Title, "title should not be empty")
+		assert.NotEmpty(t, result.Artist, "artist should not be empty")
+		assert.NotEmpty(t, result.Genre, "genre should not be empty")
+		assert.Greater(t, result.Price, 0.0, "price should be greater than 0")
+		assert.Greater(t, result.Year, 0, "year should be greater than 0")
+	}
 }

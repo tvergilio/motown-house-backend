@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http"
 
 	"example.com/web-service-gin/repository"
@@ -8,11 +9,15 @@ import (
 )
 
 type AlbumHandler struct {
-	Repo repository.AlbumRepository
+	Repo       repository.AlbumRepository
+	ITunesRepo repository.ITunesRepository
 }
 
-func NewAlbumHandler(repo repository.AlbumRepository) *AlbumHandler {
-	return &AlbumHandler{Repo: repo}
+func NewAlbumHandler(repo repository.AlbumRepository, itunesRepo repository.ITunesRepository) *AlbumHandler {
+	return &AlbumHandler{
+		Repo:       repo,
+		ITunesRepo: itunesRepo,
+	}
 }
 
 func (h *AlbumHandler) GetAlbums(c *gin.Context) {
@@ -107,4 +112,24 @@ func (h *AlbumHandler) DeleteAlbum(c *gin.Context) {
 		return
 	}
 	c.Status(http.StatusNoContent)
+}
+
+// SearchAlbums handles GET /api/search endpoint to search iTunes for albums
+func (h *AlbumHandler) SearchAlbums(c *gin.Context) {
+	// Get the search term from the query parameter
+	term := c.Query("term")
+	if term == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "term query parameter is required"})
+		return
+	}
+
+	// Use iTunes repository to search for albums
+	searchResults, err := h.ITunesRepo.Search(term)
+	if err != nil {
+		message := fmt.Sprintf("failed to fetch data from iTunes API: %v", err)
+		c.JSON(http.StatusBadGateway, gin.H{"error": message})
+		return
+	}
+
+	c.JSON(http.StatusOK, searchResults)
 }
