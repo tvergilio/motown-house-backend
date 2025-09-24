@@ -50,8 +50,9 @@ func main() {
 	}()
 
 	repo := repository.NewPostgresAlbumRepository(database)
+	itunesRepo := repository.NewITunesRepository()
 	seedAlbums(repo)
-	handler := handlers.NewAlbumHandler(repo)
+	handler := handlers.NewAlbumHandler(repo, itunesRepo)
 
 	r := gin.Default()
 
@@ -69,6 +70,7 @@ func main() {
 	r.POST("/albums", handler.PostAlbums)
 	r.DELETE("/albums/:id", handler.DeleteAlbum)
 	r.PUT("/albums/:id", handler.PutAlbum)
+	r.GET("/api/search", handler.SearchAlbums)
 
 	if err := r.Run(":8080"); err != nil {
 		log.Fatalf("Failed to run server: %v", err)
