@@ -84,7 +84,7 @@ func TestPostgresAlbumRepository_Create(t *testing.T) {
 	defer teardown()
 	repo := NewPostgresAlbumRepository(db)
 
-	album := Album{Title: "Where Did Our Love Go", Artist: "The Supremes", Price: 9.99}
+	album := Album{Title: "Where Did Our Love Go", Artist: "The Supremes", Price: 9.99, Year: 1964}
 	err := repo.Create(album)
 	require.NoError(t, err)
 
@@ -100,9 +100,9 @@ func TestPostgresAlbumRepository_GetAll(t *testing.T) {
 	defer teardown()
 	repo := NewPostgresAlbumRepository(db)
 
-	_ = repo.Create(Album{Title: "ABC", Artist: "Jackson 5", Price: 1.0})
-	_ = repo.Create(Album{Title: "Diana", Artist: "Diana Ross", Price: 2.0})
-	_ = repo.Create(Album{Title: "Sex Machine", Artist: "James Brown", Price: 3.0})
+	_ = repo.Create(Album{Title: "ABC", Artist: "Jackson 5", Price: 1.0, Year: 1970})
+	_ = repo.Create(Album{Title: "Diana", Artist: "Diana Ross", Price: 2.0, Year: 1980})
+	_ = repo.Create(Album{Title: "Sex Machine", Artist: "James Brown", Price: 3.0, Year: 1970})
 
 	albums, err := repo.GetAll()
 	require.NoError(t, err)
@@ -115,7 +115,7 @@ func TestPostgresAlbumRepository_GetByID(t *testing.T) {
 	defer teardown()
 	repo := NewPostgresAlbumRepository(db)
 
-	_ = repo.Create(Album{Title: "ABC", Artist: "Jackson 5", Price: 1.0})
+	_ = repo.Create(Album{Title: "ABC", Artist: "Jackson 5", Price: 1.0, Year: 1970})
 	albums, err := repo.GetAll()
 	require.NoError(t, err)
 	require.NotEmpty(t, albums)
@@ -131,7 +131,7 @@ func TestPostgresAlbumRepository_Delete(t *testing.T) {
 	defer teardown()
 	repo := NewPostgresAlbumRepository(db)
 
-	_ = repo.Create(Album{Title: "ABC", Artist: "Jackson 5", Price: 1.0})
+	_ = repo.Create(Album{Title: "ABC", Artist: "Jackson 5", Price: 1.0, Year: 1970})
 	albums, err := repo.GetAll()
 	require.NoError(t, err)
 	require.NotEmpty(t, albums)

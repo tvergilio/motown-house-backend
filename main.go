@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 
@@ -22,9 +23,9 @@ func seedAlbums(repo repository.AlbumRepository) {
 		return
 	}
 	initialAlbums := []repository.Album{
-		{Title: "Blue Train", Artist: "John Coltrane", Price: 56.99},
-		{Title: "Giant Steps", Artist: "John Coltrane", Price: 63.99},
-		{Title: "Jeru", Artist: "Gerry Mulligan", Price: 17.99},
+		{Title: "What's Going On", Artist: "Marvin Gaye", Price: 39.99, Year: 1971},
+		{Title: "Songs in the Key of Life", Artist: "Stevie Wonder", Price: 42.50, Year: 1976},
+		{Title: "Diana", Artist: "Diana Ross", Price: 28.75, Year: 1980},
 	}
 	for _, album := range initialAlbums {
 		if err := repo.Create(album); err != nil {
@@ -51,13 +52,23 @@ func main() {
 	seedAlbums(repo)
 	handler := handlers.NewAlbumHandler(repo)
 
-	router := gin.Default()
-	router.GET("/albums", handler.GetAlbums)
-	router.GET("/albums/:id", handler.GetAlbumByID)
-	router.POST("/albums", handler.PostAlbums)
-	router.DELETE("/albums/:id", handler.DeleteAlbum)
+	r := gin.Default()
 
-	if err := router.Run(":8080"); err != nil {
+	// Enable CORS for frontend (e.g., http://localhost:9002)
+	r.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"http://localhost:9002"},
+		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowHeaders:     []string{"Origin", "Content-Type", "Accept", "Authorization"},
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: true,
+	}))
+
+	r.GET("/albums", handler.GetAlbums)
+	r.GET("/albums/:id", handler.GetAlbumByID)
+	r.POST("/albums", handler.PostAlbums)
+	r.DELETE("/albums/:id", handler.DeleteAlbum)
+
+	if err := r.Run(":8080"); err != nil {
 		log.Fatalf("Failed to run server: %v", err)
 	}
 }
