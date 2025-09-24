@@ -84,7 +84,7 @@ func TestPostgresAlbumRepository_Create(t *testing.T) {
 	defer teardown()
 	repo := NewPostgresAlbumRepository(db)
 
-	album := Album{Title: "Where Did Our Love Go", Artist: "The Supremes", Price: 9.99, Year: 1964}
+	album := Album{Title: "Where Did Our Love Go", Artist: "The Supremes", Price: 9.99, Year: 1964, ImageUrl: "https://is1-ssl.mzstatic.com/image/thumb/Music123/v4/5d/c2/4d/5dc24de8-15d7-16e0-7585-72a2bcc721de/14UMGIM62198.rgb.jpg/100x100bb.jpg", Genre: "R&B/Soul"}
 	err := repo.Create(album)
 	require.NoError(t, err)
 
@@ -95,6 +95,8 @@ func TestPostgresAlbumRepository_Create(t *testing.T) {
 	require.Equal(t, "The Supremes", albums[0].Artist)
 	require.Equal(t, 9.99, albums[0].Price)
 	require.Equal(t, 1964, albums[0].Year)
+	require.Equal(t, "https://is1-ssl.mzstatic.com/image/thumb/Music123/v4/5d/c2/4d/5dc24de8-15d7-16e0-7585-72a2bcc721de/14UMGIM62198.rgb.jpg/100x100bb.jpg", albums[0].ImageUrl)
+	require.Equal(t, "R&B/Soul", albums[0].Genre)
 	require.NotEmpty(t, albums[0].ID)
 }
 
@@ -104,9 +106,9 @@ func TestPostgresAlbumRepository_GetAll(t *testing.T) {
 	defer teardown()
 	repo := NewPostgresAlbumRepository(db)
 
-	_ = repo.Create(Album{Title: "ABC", Artist: "Jackson 5", Price: 1.0, Year: 1970})
-	_ = repo.Create(Album{Title: "Diana", Artist: "Diana Ross", Price: 2.0, Year: 1980})
-	_ = repo.Create(Album{Title: "Sex Machine", Artist: "James Brown", Price: 3.0, Year: 1970})
+	_ = repo.Create(Album{Title: "ABC", Artist: "Jackson 5", Price: 1.0, Year: 1970, ImageUrl: "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/cb/38/70/cb3870c2-1a9b-9310-e218-9d0f5a5e98f5/06UMGIM05267.rgb.jpg/100x100bb.jpg", Genre: "R&B/Soul"})
+	_ = repo.Create(Album{Title: "Diana", Artist: "Diana Ross", Price: 2.0, Year: 1980, ImageUrl: "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/aa/87/1c/aa871c20-95be-38bd-97e3-ecfeb8ec404b/15UMGIM06551.rgb.jpg/100x100bb.jpg", Genre: "R&B/Soul"})
+	_ = repo.Create(Album{Title: "Sex Machine", Artist: "James Brown", Price: 3.0, Year: 1970, ImageUrl: "https://is1-ssl.mzstatic.com/image/thumb/Music128/v4/17/8b/05/178b05de-5855-0136-9827-a0e8a6ccf3db/00602547021656.rgb.jpg/100x100bb.jpg", Genre: "Soul"})
 
 	albums, err := repo.GetAll()
 	require.NoError(t, err)
@@ -115,16 +117,25 @@ func TestPostgresAlbumRepository_GetAll(t *testing.T) {
 	require.Equal(t, "Jackson 5", albums[0].Artist)
 	require.Equal(t, 1.0, albums[0].Price)
 	require.Equal(t, 1970, albums[0].Year)
+	require.Equal(t, "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/cb/38/70/cb3870c2-1a9b-9310-e218-9d0f5a5e98f5/06UMGIM05267.rgb.jpg/100x100bb.jpg", albums[0].ImageUrl)
+	require.Equal(t, "R&B/Soul", albums[0].Genre)
+	require.NotEmpty(t, albums[0].ID)
 
 	require.Equal(t, "Diana", albums[1].Title)
 	require.Equal(t, "Diana Ross", albums[1].Artist)
 	require.Equal(t, 2.0, albums[1].Price)
 	require.Equal(t, 1980, albums[1].Year)
+	require.Equal(t, "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/aa/87/1c/aa871c20-95be-38bd-97e3-ecfeb8ec404b/15UMGIM06551.rgb.jpg/100x100bb.jpg", albums[1].ImageUrl)
+	require.Equal(t, "R&B/Soul", albums[1].Genre)
+	require.NotEmpty(t, albums[1].ID)
 
 	require.Equal(t, "Sex Machine", albums[2].Title)
 	require.Equal(t, "James Brown", albums[2].Artist)
 	require.Equal(t, 3.0, albums[2].Price)
 	require.Equal(t, 1970, albums[2].Year)
+	require.Equal(t, "https://is1-ssl.mzstatic.com/image/thumb/Music128/v4/17/8b/05/178b05de-5855-0136-9827-a0e8a6ccf3db/00602547021656.rgb.jpg/100x100bb.jpg", albums[2].ImageUrl)
+	require.Equal(t, "Soul", albums[2].Genre)
+	require.NotEmpty(t, albums[2].ID)
 }
 
 // TestPostgresAlbumRepository_GetByID tests only the GetByID method.
@@ -133,7 +144,7 @@ func TestPostgresAlbumRepository_GetByID(t *testing.T) {
 	defer teardown()
 	repo := NewPostgresAlbumRepository(db)
 
-	_ = repo.Create(Album{Title: "ABC", Artist: "Jackson 5", Price: 1.0, Year: 1970})
+	_ = repo.Create(Album{Title: "ABC", Artist: "Jackson 5", Price: 1.0, Year: 1970, ImageUrl: "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/cb/38/70/cb3870c2-1a9b-9310-e218-9d0f5a5e98f5/06UMGIM05267.rgb.jpg/100x100bb.jpg", Genre: "R&B/Soul"})
 	albums, err := repo.GetAll()
 	require.NoError(t, err)
 	require.NotEmpty(t, albums)
@@ -144,6 +155,8 @@ func TestPostgresAlbumRepository_GetByID(t *testing.T) {
 	require.Equal(t, "Jackson 5", got.Artist)
 	require.Equal(t, 1.0, got.Price)
 	require.Equal(t, 1970, got.Year)
+	require.Equal(t, "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/cb/38/70/cb3870c2-1a9b-9310-e218-9d0f5a5e98f5/06UMGIM05267.rgb.jpg/100x100bb.jpg", got.ImageUrl)
+	require.Equal(t, "R&B/Soul", got.Genre)
 	require.Equal(t, id, got.ID)
 }
 
@@ -154,7 +167,7 @@ func TestPostgresAlbumRepository_Update(t *testing.T) {
 	repo := NewPostgresAlbumRepository(db)
 
 	// Create an album
-	album := Album{Title: "ABC", Artist: "Shakira", Price: 1.0, Year: 2024}
+	album := Album{Title: "ABC", Artist: "Shakira", Price: 1.0, Year: 2024, ImageUrl: "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/8d/97/f4/8d97f427-2d17-1a51-1714-324483eb5fc1/886443546264.jpg/100x100bb.jpg", Genre: "Pop"}
 	err := repo.Create(album)
 	require.NoError(t, err)
 
@@ -165,7 +178,7 @@ func TestPostgresAlbumRepository_Update(t *testing.T) {
 	id := albums[0].ID
 
 	// Update the album
-	updated := Album{ID: id, Title: "ABC", Artist: "Jackson 5", Price: 20.0, Year: 1970}
+	updated := Album{ID: id, Title: "ABC", Artist: "Jackson 5", Price: 20.0, Year: 1970, ImageUrl: "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/cb/38/70/cb3870c2-1a9b-9310-e218-9d0f5a5e98f5/06UMGIM05267.rgb.jpg/100x100bb.jpg", Genre: "R&B/Soul"}
 	err = repo.Update(updated)
 	require.NoError(t, err)
 
@@ -176,6 +189,9 @@ func TestPostgresAlbumRepository_Update(t *testing.T) {
 	require.Equal(t, "Jackson 5", got.Artist)
 	require.Equal(t, 20.0, got.Price)
 	require.Equal(t, 1970, got.Year)
+	require.Equal(t, "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/cb/38/70/cb3870c2-1a9b-9310-e218-9d0f5a5e98f5/06UMGIM05267.rgb.jpg/100x100bb.jpg", got.ImageUrl)
+	require.Equal(t, "R&B/Soul", got.Genre)
+	require.Equal(t, id, got.ID)
 }
 
 // TestPostgresAlbumRepository_Delete tests only the Delete method.
@@ -184,7 +200,7 @@ func TestPostgresAlbumRepository_Delete(t *testing.T) {
 	defer teardown()
 	repo := NewPostgresAlbumRepository(db)
 
-	_ = repo.Create(Album{Title: "ABC", Artist: "Jackson 5", Price: 1.0, Year: 1970})
+	_ = repo.Create(Album{Title: "ABC", Artist: "Jackson 5", Price: 1.0, Year: 1970, ImageUrl: "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/cb/38/70/cb3870c2-1a9b-9310-e218-9d0f5a5e98f5/06UMGIM05267.rgb.jpg/100x100bb.jpg", Genre: "R&B/Soul"})
 	albums, err := repo.GetAll()
 	require.NoError(t, err)
 	require.NotEmpty(t, albums)

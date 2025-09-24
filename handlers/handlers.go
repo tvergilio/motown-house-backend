@@ -60,6 +60,11 @@ func (h *AlbumHandler) PostAlbums(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
+	// Validate required fields
+	if newAlbum.ImageUrl == "" || newAlbum.Genre == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "imageUrl and genre are required and cannot be empty"})
+		return
+	}
 	if err := h.Repo.Create(newAlbum); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -75,6 +80,11 @@ func (h *AlbumHandler) PutAlbum(c *gin.Context) {
 	var updatedAlbum repository.Album
 	if err := c.BindJSON(&updatedAlbum); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	// Validate required fields
+	if updatedAlbum.ImageUrl == "" || updatedAlbum.Genre == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "imageUrl and genre are required and cannot be empty"})
 		return
 	}
 	updatedAlbum.ID = id

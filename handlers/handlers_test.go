@@ -95,6 +95,7 @@ func Test_GetAlbumByID_Found(t *testing.T) {
 	assert.Equal(t, "Michael Jackson", album.Artist)
 	assert.Equal(t, 42.99, album.Price)
 	assert.Equal(t, 1982, album.Year)
+	assert.Equal(t, "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/32/4f/fd/324ffda2-9e51-8f6a-0c2d-c6fd2b41ac55/074643811224.jpg/100x100bb.jpg", album.ImageUrl)
 }
 
 func Test_GetAlbumByID_NotFound(t *testing.T) {
@@ -114,7 +115,7 @@ func Test_PostAlbums_Success(t *testing.T) {
 	w := httptest.NewRecorder()
 	c, _ := gin.CreateTestContext(w)
 
-	album := repository.Album{ID: 104, Title: "Bad", Artist: "Michael Jackson", Price: 29.99, Year: 1987}
+	album := repository.Album{ID: 104, Title: "Bad", Artist: "Michael Jackson", Price: 29.99, Year: 1987, ImageUrl: "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/8d/97/f4/8d97f427-2d17-1a51-1714-324483eb5fc1/886443546264.jpg/100x100bb.jpg", Genre: "Pop"}
 	jsonBytes, _ := json.Marshal(album)
 	c.Request = httptest.NewRequest("POST", "/albums", io.NopCloser(bytes.NewReader(jsonBytes)))
 	c.Request.Header.Set("Content-Type", "application/json")
@@ -150,11 +151,13 @@ func Test_PutAlbums_Success(t *testing.T) {
 	w := httptest.NewRecorder()
 
 	updatedAlbum := repository.Album{
-		ID:     101,
-		Title:  "Thriller 25",
-		Artist: "Michael Jackson",
-		Price:  45.99,
-		Year:   1982,
+		ID:       101,
+		Title:    "Thriller 25",
+		Artist:   "Michael Jackson",
+		Price:    45.99,
+		Year:     1982,
+		ImageUrl: "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/8d/97/f4/8d97f427-2d17-1a51-1714-324483eb5fc1/886443546264.jpg/100x100bb.jpg",
+		Genre:    "Pop",
 	}
 	jsonBytes, _ := json.Marshal(updatedAlbum)
 	req := httptest.NewRequest("PUT", "/albums/101", bytes.NewReader(jsonBytes))
@@ -188,7 +191,7 @@ func Test_PutAlbums_NonExistentID(t *testing.T) {
 	r := setupRouter(handler)
 	w := httptest.NewRecorder()
 
-	updatedAlbum := repository.Album{ID: 999, Title: "Ghost Album", Artist: "Nobody", Price: 10.0, Year: 2000}
+	updatedAlbum := repository.Album{ID: 999, Title: "Ghost Album", Artist: "Nobody", Price: 10.0, Year: 2000, ImageUrl: "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/8d/97/f4/8d97f427-2d17-1a51-1714-329993eb5fc1/886443546264.jpg/100x100bb.jpg", Genre: "Pop"}
 	jsonBytes, _ := json.Marshal(updatedAlbum)
 	req := httptest.NewRequest("PUT", "/albums/999", bytes.NewReader(jsonBytes))
 	req.Header.Set("Content-Type", "application/json")
@@ -202,7 +205,7 @@ func Test_PutAlbums_IDMismatch(t *testing.T) {
 	r := setupRouter(handler)
 	w := httptest.NewRecorder()
 
-	updatedAlbum := repository.Album{ID: 102, Title: "Mismatch", Artist: "Test", Price: 20.0, Year: 2020}
+	updatedAlbum := repository.Album{ID: 102, Title: "Mismatch", Artist: "Test", Price: 20.0, Year: 2020, ImageUrl: "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/8d/97/f4/8d97f427-2d17-1a51-1714-324483eb5fc1/886443546264.jpg/100x100bb.jpg", Genre: "Pop"}
 	jsonBytes, _ := json.Marshal(updatedAlbum)
 	req := httptest.NewRequest("PUT", "/albums/101", bytes.NewReader(jsonBytes))
 	req.Header.Set("Content-Type", "application/json")
@@ -236,7 +239,7 @@ func Test_PutAlbums_InvalidFieldTypes(t *testing.T) {
 	r := setupRouter(handler)
 	w := httptest.NewRecorder()
 
-	body := `{"title":"Bad Type","artist":"Test","price":"not a float","year":"not an int"}`
+	body := `{"title":"Bad Type","artist":"Test","price":"not a float","year":"not an int", "image_url": "Test", "genre": "Pop"}`
 	req := httptest.NewRequest("PUT", "/albums/101", bytes.NewReader([]byte(body)))
 	req.Header.Set("Content-Type", "application/json")
 
@@ -249,7 +252,7 @@ func Test_PutAlbums_NegativePriceOrYear(t *testing.T) {
 	r := setupRouter(handler)
 	w := httptest.NewRecorder()
 
-	updatedAlbum := repository.Album{ID: 101, Title: "Negative", Artist: "Test", Price: -10.0, Year: -1980}
+	updatedAlbum := repository.Album{ID: 101, Title: "Negative", Artist: "Test", Price: -10.0, Year: -1980, ImageUrl: "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/8d/97/f4/8d97f427-2d17-1a51-1714-324483eb5fc1/886443546264.jpg/100x100bb.jpg", Genre: "Pop"}
 	jsonBytes, _ := json.Marshal(updatedAlbum)
 	req := httptest.NewRequest("PUT", "/albums/101", bytes.NewReader(jsonBytes))
 	req.Header.Set("Content-Type", "application/json")
@@ -279,7 +282,7 @@ func Test_PutAlbums_ExtraFields(t *testing.T) {
 	r := setupRouter(handler)
 	w := httptest.NewRecorder()
 
-	body := `{"title":"Extra","artist":"Test","price":10.0,"year":2020,"extra":"field"}`
+	body := `{"title":"Extra","artist":"Test","price":10.0,"year":2020, "image_url": "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/8d/97/f4/8d97f427-2d27-1a51-1714-324483eb5fc1/886443546264.jpg/100x100bb.jpg", "genre": "R&B", "extra":"field"}`
 	req := httptest.NewRequest("PUT", "/albums/101", bytes.NewReader([]byte(body)))
 	req.Header.Set("Content-Type", "application/json")
 
@@ -296,7 +299,7 @@ func Test_PutAlbums_LargePayload(t *testing.T) {
 	for i := range largeTitle {
 		largeTitle[i] = 'A'
 	}
-	updatedAlbum := repository.Album{ID: 101, Title: string(largeTitle), Artist: "Test", Price: 10.0, Year: 2020}
+	updatedAlbum := repository.Album{ID: 101, Title: string(largeTitle), Artist: "Test", Price: 10.0, Year: 2020, ImageUrl: "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/8d/97/f4/8d97f427-2d27-1a51-1714-324483eb5fc1/886443546264.jpg/100x100bb.jpg", Genre: "Motown"}
 	jsonBytes, _ := json.Marshal(updatedAlbum)
 	req := httptest.NewRequest("PUT", "/albums/101", bytes.NewReader(jsonBytes))
 	req.Header.Set("Content-Type", "application/json")
