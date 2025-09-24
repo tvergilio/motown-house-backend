@@ -1,11 +1,13 @@
 package repository
 
 type Album struct {
-	ID     int     `db:"id" json:"id"`
-	Title  string  `db:"title" json:"title"`
-	Artist string  `db:"artist" json:"artist"`
-	Price  float64 `db:"price" json:"price"`
-	Year   int     `db:"year" json:"year"`
+	ID       int     `db:"id" json:"id"`
+	Title    string  `db:"title" json:"title"`
+	Artist   string  `db:"artist" json:"artist"`
+	Price    float64 `db:"price" json:"price"`
+	Year     int     `db:"year" json:"year"`
+	ImageUrl string  `db:"image_url" json:"image_url"`
+	Genre    string  `db:"genre" json:"genre"`
 }
 
 type AlbumRepository interface {
