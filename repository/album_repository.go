@@ -6,7 +6,7 @@ type Album struct {
 	Artist   string  `db:"artist" json:"artist"`
 	Price    float64 `db:"price" json:"price"`
 	Year     int     `db:"year" json:"year"`
-	ImageUrl string  `db:"image_url" json:"image_url"`
+	ImageUrl string  `db:"image_url" json:"imageUrl"`
 	Genre    string  `db:"genre" json:"genre"`
 }
 
