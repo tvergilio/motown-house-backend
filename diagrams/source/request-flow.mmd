@@ -1,0 +1,100 @@
+flowchart TD
+    Start([Client Request]) --> Route{Route Analysis}
+    
+    %% CRUD Operations
+    Route -->|GET /albums| GetAll[Get All Albums]
+    Route -->|GET /albums/:id| GetByID[Get Album by ID]
+    Route -->|POST /albums| Create[Create Album]
+    Route -->|PUT /albums/:id| Update[Update Album]
+    Route -->|DELETE /albums/:id| Delete[Delete Album]
+    
+    %% iTunes Search
+    Route -->|GET /api/search?term=X| Search[iTunes Search]
+    
+    %% Get All Albums Flow
+    GetAll --> RepoGetAll[repo.GetAll]
+    RepoGetAll --> DBQuery1[(SELECT * FROM albums)]
+    DBQuery1 --> ReturnJSON1[Return JSON Array]
+    ReturnJSON1 --> End1([200 OK])
+    
+    %% Get By ID Flow
+    GetByID --> ValidateID{Valid ID?}
+    ValidateID -->|No| BadRequest1[400 Bad Request]
+    ValidateID -->|Yes| RepoGetByID[repo.GetByID]
+    RepoGetByID --> DBQuery2[(SELECT * FROM albums WHERE id = ?)]
+    DBQuery2 --> Found{Album Found?}
+    Found -->|No| NotFound[404 Not Found]
+    Found -->|Yes| ReturnJSON2[Return Album JSON]
+    ReturnJSON2 --> End2([200 OK])
+    
+    %% Create Album Flow
+    Create --> ValidateJSON1{Valid JSON?}
+    ValidateJSON1 -->|No| BadRequest2[400 Bad Request]
+    ValidateJSON1 -->|Yes| ValidateFields1{Required Fields?}
+    ValidateFields1 -->|No| BadRequest3[400 Bad Request]
+    ValidateFields1 -->|Yes| RepoCreate[repo.Create]
+    RepoCreate --> DBInsert[(INSERT INTO albums)]
+    DBInsert --> ReturnCreated[Return Created Album]
+    ReturnCreated --> End3([201 Created])
+    
+    %% Update Album Flow
+    Update --> ValidateID2{Valid ID?}
+    ValidateID2 -->|No| BadRequest4[400 Bad Request]
+    ValidateID2 -->|Yes| ValidateJSON2{Valid JSON?}
+    ValidateJSON2 -->|No| BadRequest5[400 Bad Request]
+    ValidateJSON2 -->|Yes| ValidateFields2{Required Fields?}
+    ValidateFields2 -->|No| BadRequest6[400 Bad Request]
+    ValidateFields2 -->|Yes| RepoUpdate[repo.Update]
+    RepoUpdate --> DBUpdate[(UPDATE albums WHERE id = ?)]
+    DBUpdate --> UpdateSuccess{Update Success?}
+    UpdateSuccess -->|No| ServerError1[500 Internal Server Error]
+    UpdateSuccess -->|Yes| ReturnUpdated[Return Updated Album]
+    ReturnUpdated --> End4([200 OK])
+    
+    %% Delete Album Flow
+    Delete --> ValidateID3{Valid ID?}
+    ValidateID3 -->|No| BadRequest7[400 Bad Request]
+    ValidateID3 -->|Yes| RepoDelete[repo.Delete]
+    RepoDelete --> DBDelete[(DELETE FROM albums WHERE id = ?)]
+    DBDelete --> DeleteSuccess{Delete Success?}
+    DeleteSuccess -->|No| NotFound2[404 Not Found]
+    DeleteSuccess -->|Yes| End5([204 No Content])
+    
+    %% iTunes Search Flow
+    Search --> ValidateTerm{Valid Search Term?}
+    ValidateTerm -->|No| BadRequest8[400 Bad Request]
+    ValidateTerm -->|Yes| iTunesAPI[iTunes API Request]
+    iTunesAPI --> APISuccess{API Success?}
+    APISuccess -->|No| BadGateway[502 Bad Gateway]
+    APISuccess -->|Yes| ParseResults[Parse & Transform Results]
+    ParseResults --> ReturnSearch[Return Search Results]
+    ReturnSearch --> End6([200 OK])
+    
+    %% Error endpoints
+    BadRequest1 --> EndError1([Error Response])
+    BadRequest2 --> EndError2([Error Response])
+    BadRequest3 --> EndError3([Error Response])
+    BadRequest4 --> EndError4([Error Response])
+    BadRequest5 --> EndError5([Error Response])
+    BadRequest6 --> EndError6([Error Response])
+    BadRequest7 --> EndError7([Error Response])
+    BadRequest8 --> EndError8([Error Response])
+    NotFound --> EndError9([Error Response])
+    NotFound2 --> EndError10([Error Response])
+    ServerError1 --> EndError11([Error Response])
+    BadGateway --> EndError12([Error Response])
+
+    %% Styling
+    classDef startEnd fill:#e1f5fe,stroke:#01579b,stroke-width:2px
+    classDef process fill:#e8f5e8,stroke:#2e7d32,stroke-width:2px
+    classDef decision fill:#fff3e0,stroke:#ef6c00,stroke-width:2px
+    classDef database fill:#fce4ec,stroke:#ad1457,stroke-width:2px
+    classDef error fill:#ffebee,stroke:#c62828,stroke-width:2px
+    classDef external fill:#f1f8e9,stroke:#558b2f,stroke-width:2px
+    
+    class Start,End1,End2,End3,End4,End5,End6 startEnd
+    class GetAll,GetByID,Create,Update,Delete,Search,RepoGetAll,RepoGetByID,RepoCreate,RepoUpdate,RepoDelete,ParseResults,ReturnJSON1,ReturnJSON2,ReturnCreated,ReturnUpdated,ReturnSearch process
+    class Route,ValidateID,ValidateID2,ValidateID3,ValidateJSON1,ValidateJSON2,ValidateFields1,ValidateFields2,ValidateTerm,Found,UpdateSuccess,DeleteSuccess,APISuccess decision
+    class DBQuery1,DBQuery2,DBInsert,DBUpdate,DBDelete database
+    class BadRequest1,BadRequest2,BadRequest3,BadRequest4,BadRequest5,BadRequest6,BadRequest7,BadRequest8,NotFound,NotFound2,ServerError1,BadGateway,EndError1,EndError2,EndError3,EndError4,EndError5,EndError6,EndError7,EndError8,EndError9,EndError10,EndError11,EndError12 error
+    class iTunesAPI external

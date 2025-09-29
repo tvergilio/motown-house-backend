@@ -1,0 +1,75 @@
+graph TB
+    subgraph "Client Layer"
+        C[Client Applications]
+        F[Frontend - Next.js<br/>localhost:9002]
+    end
+
+    subgraph "API Layer"
+        G[Gin HTTP Server<br/>:8080]
+        AH[Album Handler]
+        CORS[CORS Middleware]
+    end
+
+    subgraph "Service Layer"
+        AR[Album Repository<br/>Interface]
+        ITR[iTunes Repository<br/>Interface]
+    end
+
+    subgraph "Implementation Layer"
+        PAR[Postgres Album<br/>Repository]
+        ITRAPL[iTunes Repository<br/>Implementation]
+    end
+
+    subgraph "Data Layer"
+        PG[(PostgreSQL<br/>Database)]
+        MIG[Migrations<br/>./migrations/]
+    end
+
+    subgraph "External Services"
+        ITUNES[iTunes Search API<br/>itunes.apple.com]
+    end
+
+    subgraph "Infrastructure"
+        ENV[Environment<br/>.env]
+        DOCKER[Docker Compose<br/>PostgreSQL Container]
+    end
+
+    %% Client connections
+    C --> G
+    F --> G
+
+    %% API Layer connections
+    G --> CORS
+    CORS --> AH
+    AH --> AR
+    AH --> ITR
+
+    %% Service to Implementation
+    AR -.-> PAR
+    ITR -.-> ITRAPL
+
+    %% Data connections
+    PAR --> PG
+    MIG --> PG
+    ITRAPL --> ITUNES
+
+    %% Infrastructure
+    ENV -.-> G
+    DOCKER -.-> PG
+
+    %% Styling
+    classDef client fill:#e1f5fe
+    classDef api fill:#f3e5f5
+    classDef service fill:#e8f5e8
+    classDef impl fill:#fff3e0
+    classDef data fill:#fce4ec
+    classDef external fill:#f1f8e9
+    classDef infra fill:#f5f5f5
+
+    class C,F client
+    class G,AH,CORS api
+    class AR,ITR service
+    class PAR,ITRAPL impl
+    class PG,MIG data
+    class ITUNES external
+    class ENV,DOCKER infra

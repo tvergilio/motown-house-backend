@@ -1,0 +1,49 @@
+sequenceDiagram
+    participant Client
+    participant Handler as Album Handler
+    participant Repo as Album Repository
+    participant DB as PostgreSQL
+    participant iTunes as iTunes API
+    
+    Note over Client, iTunes: Album CRUD Operations
+    
+    Client->>+Handler: POST /albums (Create Album)
+    Handler->>Handler: Validate JSON & Fields
+    Handler->>+Repo: Create(album)
+    Repo->>+DB: INSERT INTO albums
+    DB-->>-Repo: Success/Error
+    Repo-->>-Handler: Album/Error
+    Handler-->>-Client: 201 Created / 400 Bad Request
+    
+    Client->>+Handler: GET /albums/:id (Get Album)
+    Handler->>Handler: Validate ID
+    Handler->>+Repo: GetByID(id)
+    Repo->>+DB: SELECT FROM albums WHERE id = ?
+    DB-->>-Repo: Album Data/Not Found
+    Repo-->>-Handler: Album/Error
+    Handler-->>-Client: 200 OK / 404 Not Found
+    
+    Client->>+Handler: PUT /albums/:id (Update Album)
+    Handler->>Handler: Validate ID & JSON
+    Handler->>+Repo: Update(album)
+    Repo->>+DB: UPDATE albums SET ... WHERE id = ?
+    DB-->>-Repo: Success/Error
+    Repo-->>-Handler: Updated Album/Error
+    Handler-->>-Client: 200 OK / 500 Internal Error
+    
+    Client->>+Handler: DELETE /albums/:id (Delete Album)
+    Handler->>Handler: Validate ID
+    Handler->>+Repo: Delete(id)
+    Repo->>+DB: DELETE FROM albums WHERE id = ?
+    DB-->>-Repo: Success/Error
+    Repo-->>-Handler: Success/Error
+    Handler-->>-Client: 204 No Content / 404 Not Found
+    
+    Note over Client, iTunes: iTunes Search Operation
+    
+    Client->>+Handler: GET /api/search?term=thriller
+    Handler->>Handler: Validate Search Term
+    Handler->>+iTunes: Search Albums API Call
+    iTunes-->>-Handler: Search Results/API Error
+    Handler->>Handler: Transform Results
+    Handler-->>-Client: 200 OK / 502 Bad Gateway
