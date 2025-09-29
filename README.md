@@ -8,7 +8,7 @@ A RESTful API for managing music albums built with Go and Gin. Features CRUD ope
 
 This API is built using a clean layered architecture that promotes separation of concerns and maintainability. The system is organised into distinct layers: the API layer manages HTTP requests and responses, the business logic layer handles validation and processing rules, and the repository layer provides a clean abstraction for data access to both PostgreSQL database and external iTunes API.
 
-<img src="diagrams/images/high-level-architecture.svg" width="50%">
+<img src="diagrams/images/high-level-architecture.svg" width="100%">
 
 ### Key Components
 - **Repository Pattern**: Clean separation between business logic and data access
