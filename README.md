@@ -38,7 +38,18 @@ POSTGRES_URL=
 
 # 3. Start services
 docker-compose up -d
-migrate -path ./migrations -database "postgres://user:pass@localhost:5432/db?sslmode=disable" up
+
+# 4. Setup keyspace and run migrations
+# For Postgres:
+migrate -path ./migrations/postgres -database "postgres://user:pass@localhost:5432/db?sslmode=disable" up
+
+# For Cassandra:
+# Step 1: Create keyspace (one-time setup)
+docker exec -it cassandra cqlsh -e "CREATE KEYSPACE IF NOT EXISTS motown WITH replication = {'class': 'SimpleStrategy', 'replication_factor': 1};"
+# Step 2: Run table migrations
+migrate -path ./migrations/cassandra -database "cassandra://localhost:9042/motown" up
+
+# 5. Start application
 go run main.go
 ```
 

@@ -19,7 +19,7 @@ import (
 )
 
 // migrationsPath points to the directory containing the migration SQL files.
-var migrationsPath = "../migrations"
+var migrationsPath = "../migrations/postgres"
 
 // setupTestPostgres spins up a temporary Postgres container, runs migrations, and returns a connected *sqlx.DB and a teardown function.
 func setupTestPostgres(t *testing.T) (*sqlx.DB, func()) {
