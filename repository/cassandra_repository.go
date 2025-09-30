@@ -18,9 +18,12 @@ func (r *CassandraAlbumRepository) GetAll() ([]Album, error) {
 	iter := r.session.Query("SELECT id, title, artist, price, year, image_url, genre FROM albums").Iter()
 	defer iter.Close()
 
-	var album Album
 	var cassandraID gocql.UUID
-	for iter.Scan(&cassandraID, &album.Title, &album.Artist, &album.Price, &album.Year, &album.ImageUrl, &album.Genre) {
+	for {
+		var album Album // Create a new Album instance for each iteration
+		if !iter.Scan(&cassandraID, &album.Title, &album.Artist, &album.Price, &album.Year, &album.ImageUrl, &album.Genre) {
+			break
+		}
 		album.ID = cassandraID.String() // Convert UUID to string
 		albums = append(albums, album)
 	}

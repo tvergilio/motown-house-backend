@@ -15,14 +15,20 @@ type DatabaseConnection struct {
 	Backend     string
 }
 
-// Close closes the appropriate database connection
+// Close closes both database connections if present, and returns any errors encountered.
 func (dc *DatabaseConnection) Close() error {
+	var errPostgres error
+
 	if dc.PostgresDB != nil {
-		return dc.PostgresDB.Close()
+		errPostgres = dc.PostgresDB.Close()
 	}
 	if dc.CassandraDB != nil {
+		// gocql.Session.Close() does not return an error, but we can check if session is closed if needed.
 		dc.CassandraDB.Close()
-		return nil
+	}
+
+	if errPostgres != nil {
+		return errPostgres
 	}
 	return nil
 }
