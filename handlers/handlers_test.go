@@ -9,9 +9,9 @@ import (
 	"os"
 	"testing"
 
-	"example.com/web-service-gin/repository"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
+	"github.com/tvergilio/motown-house-backend/repository"
 )
 
 func TestMain(m *testing.M) {

@@ -24,8 +24,8 @@ This API is built using a clean layered architecture that promotes separation of
 
 ```bash
 # 1. Clone and setup
-git clone https://github.com/tvergilio/web-service-gin
-cd web-service-gin
+git clone https://github.com/tvergilio/moortown-house-backend
+cd moortown-house-backend
 go mod tidy
 
 # 2. Environment (create .env file)
