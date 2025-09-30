@@ -6,15 +6,17 @@ A RESTful API for managing music albums built with Go and Gin. Features CRUD ope
 
 ## Architecture
 
-This API is built using a clean layered architecture that promotes separation of concerns and maintainability. The system is organised into distinct layers: the API layer manages HTTP requests and responses, the business logic layer handles validation and processing rules, and the repository layer provides a clean abstraction for data access to both PostgreSQL database and external iTunes API.
+This API is built using a clean layered architecture that promotes separation of concerns and maintainability. The system supports **multiple database backends** (PostgreSQL and Cassandra) through a unified repository interface. The system is organised into distinct layers: the API layer manages HTTP requests and responses, the business logic layer handles validation and processing rules, and the repository layer provides a clean abstraction for data access to either PostgreSQL or Cassandra databases, plus external iTunes API.
 
 <img src="diagrams/images/high-level-architecture.svg" width="100%">
 
 ### Key Components
 - **Repository Pattern**: Clean separation between business logic and data access
-- **PostgreSQL**: Primary data storage with migrations
+- **Multi-Database Support**: Choose between PostgreSQL or Cassandra via environment variable
+- **PostgreSQL**: Traditional relational database option with integer IDs (stored as strings)
+- **Cassandra**: NoSQL database option with UUID-based IDs
 - **iTunes Integration**: External API for album search
-- **Comprehensive Testing**: Unit tests with testcontainers for integration testing
+- **Comprehensive Testing**: Unit tests with testcontainers for integration testing of both databases
 
 ## Quick Start
 
@@ -28,13 +30,12 @@ go mod tidy
 
 # 2. Environment (create .env file)
 # Use `DB_BACKEND` to switch between `postgres` and `cassandra`.
-# Provide a full `POSTGRES_URL` when DB_BACKEND=postgres. 
 DB_BACKEND=postgres
-POSTGRES_URL=
+POSTGRES_URL=postgres://myuser:mypassword@localhost:5432/mydb?sslmode=disable
 
-# Cassandra (only used when DB_BACKEND=cassandra)
-# CASSANDRA_HOSTS=host1,host2
-# CASSANDRA_KEYSPACE=your_keyspace
+# Cassandra configuration (used when DB_BACKEND=cassandra)
+CASSANDRA_HOSTS=localhost:9042
+CASSANDRA_KEYSPACE=motown
 
 # 3. Start services
 docker-compose up -d
@@ -54,6 +55,22 @@ go run main.go
 ```
 
 Server runs on `http://localhost:8080`
+
+## Database Switching
+
+Seamlessly switch between database backends by changing the `DB_BACKEND` environment variable:
+
+```bash
+# Switch to Cassandra
+echo "DB_BACKEND=cassandra" > .env
+docker-compose restart app
+
+# Switch back to Postgres  
+echo "DB_BACKEND=postgres" > .env
+docker-compose restart app
+```
+
+**Note**: Data is separate between backends. Each database maintains its own dataset.
 
 ## API Endpoints
 
@@ -108,7 +125,9 @@ go test ./repository/...
 ## Tech Stack
 
 - **Framework**: [Gin](https://github.com/gin-gonic/gin)
-- **Database**: PostgreSQL with [sqlx](https://github.com/jmoiron/sqlx)
+- **Databases**: 
+  - PostgreSQL with [sqlx](https://github.com/jmoiron/sqlx)
+  - Cassandra with [gocql](https://github.com/gocql/gocql)
 - **Migrations**: [golang-migrate](https://github.com/golang-migrate/migrate)
 - **Testing**: [testify](https://github.com/stretchr/testify) + [testcontainers](https://github.com/testcontainers/testcontainers-go)
 - **External API**: iTunes Search API integration
