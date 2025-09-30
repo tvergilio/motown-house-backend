@@ -54,7 +54,7 @@ func setupTestPostgres(t *testing.T) (*sqlx.DB, func()) {
 	}
 
 	// Connect to the Postgres database using the config system
-	database, err := db.Connect(testConfig)
+	database, err := db.ConnectPostgres(testConfig)
 	require.NoError(t, err)
 
 	// Wait for the database to be ready to accept connections
