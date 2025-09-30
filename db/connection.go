@@ -16,7 +16,7 @@ func Connect(cfg *config.Config) (*sqlx.DB, error) {
 		return nil, fmt.Errorf("config is required")
 	}
 	if cfg.PostgresURL == "" {
-		return nil, fmt.Errorf("postgres URL is required in config.PostgresURL")
+		return nil, fmt.Errorf("postgres URL is required in config.PostgresURL (set POSTGRES_URL environment variable)")
 	}
 	dsn = cfg.PostgresURL
 
