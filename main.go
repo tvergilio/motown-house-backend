@@ -69,9 +69,13 @@ func main() {
 
 	r := gin.Default()
 
-	// Enable CORS for frontend (e.g., http://localhost:9002)
+	// Enable CORS for frontend (supports both localhost and Docker network)
 	r.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"http://localhost:9002"},
+		AllowOrigins: []string{
+			"http://localhost:3000", // Local development
+			"http://frontend:3000",  // Docker network
+			"http://127.0.0.1:3000", // Alternative localhost
+		},
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowHeaders:     []string{"Origin", "Content-Type", "Accept", "Authorization"},
 		ExposeHeaders:    []string{"Content-Length"},
