@@ -1,7 +1,5 @@
-version: '3.8'
-
 services:
-  db:
+  postgres:
     image: postgres:13-trixie
     restart: always
     env_file:
@@ -11,10 +9,20 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
 
+  cassandra:
+    image: cassandra:5-jammy
+    container_name: cassandra
+    env_file:
+      - .env
+    ports:
+      - "9042:9042" 
+    volumes:
+      - cassandradata:/var/lib/cassandra
+
   app:
     build: .
     depends_on:
-      - db
+      - postgres
     env_file:
       - .env
     ports:
@@ -23,3 +31,4 @@ services:
 
 volumes:
   pgdata:
+  cassandradata:
