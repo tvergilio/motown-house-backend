@@ -38,7 +38,8 @@ func seedAlbums(repo repository.AlbumRepository) {
 
 func main() {
 	_ = godotenv.Load()
-	database, err := db.Connect()
+
+	database, err := db.ConnectFromEnv()
 	if err != nil {
 		log.Fatalf("Failed to connect to DB: %v", err)
 	}

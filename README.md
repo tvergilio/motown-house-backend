@@ -27,11 +27,14 @@ cd web-service-gin
 go mod tidy
 
 # 2. Environment (create .env file)
-POSTGRES_USER=your_username
-POSTGRES_PASSWORD=your_password  
-POSTGRES_DB=your_database
-POSTGRES_HOST=localhost
-POSTGRES_PORT=5432
+# Use `DB_BACKEND` to switch between `postgres` and `cassandra`.
+# Provide a full `POSTGRES_URL` when DB_BACKEND=postgres. 
+DB_BACKEND=postgres
+POSTGRES_URL=
+
+# Cassandra (only used when DB_BACKEND=cassandra)
+# CASSANDRA_HOSTS=host1,host2
+# CASSANDRA_KEYSPACE=your_keyspace
 
 # 3. Start services
 docker-compose up -d

@@ -2,26 +2,24 @@ package db
 
 import (
 	"fmt"
+
+	"example.com/web-service-gin/config"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
-	"os"
 )
 
-// Connect returns a *sqlx.DB connected to Postgres using environment variables.
-func Connect() (*sqlx.DB, error) {
-	user := os.Getenv("POSTGRES_USER")
-	password := os.Getenv("POSTGRES_PASSWORD")
-	dbname := os.Getenv("POSTGRES_DB")
-	host := os.Getenv("POSTGRES_HOST")
-	if host == "" {
-		host = "localhost"
-	}
-	port := os.Getenv("POSTGRES_PORT")
-	if port == "" {
-		port = "5432"
-	}
+// Connect returns a *sqlx.DB connected to Postgres using configuration from cfg.
 
-	dsn := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable", user, password, host, port, dbname)
+func Connect(cfg *config.Config) (*sqlx.DB, error) {
+	var dsn string
+	if cfg == nil {
+		return nil, fmt.Errorf("config is required")
+	}
+	if cfg.PostgresURL == "" {
+		return nil, fmt.Errorf("postgres URL is required in config.PostgresURL")
+	}
+	dsn = cfg.PostgresURL
+
 	db, err := sqlx.Open("postgres", dsn)
 	if err != nil {
 		return nil, err
@@ -30,4 +28,14 @@ func Connect() (*sqlx.DB, error) {
 		return nil, err
 	}
 	return db, nil
+}
+
+// ConnectFromEnv loads configuration from environment and returns a connected DB.
+// Convenience wrapper for callers that prefer a no-argument call.
+func ConnectFromEnv() (*sqlx.DB, error) {
+	cfg, err := config.LoadFromEnv()
+	if err != nil {
+		return nil, err
+	}
+	return Connect(cfg)
 }
