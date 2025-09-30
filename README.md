@@ -92,8 +92,11 @@ curl "http://localhost:8080/api/search?term=thriller"
 ## Development
 
 ```bash
-# Run tests
+# Run tests (excludes slow Cassandra integration tests)
 go test ./...
+
+# Run all tests including Cassandra integration tests (slow, requires Docker)
+go test -tags=integration -timeout=300s ./repository
 
 # Docker deployment
 docker-compose up --build
