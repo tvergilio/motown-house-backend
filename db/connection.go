@@ -3,9 +3,9 @@ package db
 import (
 	"fmt"
 
-	"example.com/web-service-gin/config"
 	"github.com/gocql/gocql"
 	"github.com/jmoiron/sqlx"
+	"github.com/tvergilio/motown-house-backend/config"
 )
 
 // DatabaseConnection holds either a Postgres or Cassandra connection

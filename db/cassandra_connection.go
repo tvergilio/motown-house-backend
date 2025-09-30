@@ -5,8 +5,8 @@ import (
 	"strings"
 	"time"
 
-	"example.com/web-service-gin/config"
 	"github.com/gocql/gocql"
+	"github.com/tvergilio/motown-house-backend/config"
 )
 
 // ConnectCassandra returns a *gocql.Session connected to Cassandra using configuration from cfg.

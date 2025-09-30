@@ -1,7 +1,7 @@
 graph TB
     subgraph "Client Layer"
         C[Client Applications]
-        F[Frontend - Next.js<br/>localhost:9002]
+        F[Frontend - Next.js<br/>localhost:3000]
     end
 
     subgraph "API Layer"
@@ -16,13 +16,16 @@ graph TB
     end
 
     subgraph "Implementation Layer"
-        PAR[Postgres Album<br/>Repository]
+        PAR[Postgres Album Repository]
+        CAR[Cassandra Album Repository]
         ITRAPL[iTunes Repository<br/>Implementation]
     end
 
     subgraph "Data Layer"
-        PG[(PostgreSQL<br/>Database)]
-        MIG[Migrations<br/>./migrations/]
+        PG[(PostgreSQL)]
+        CAS[(Cassandra)]
+        PGMIG[Postgres Migrations<br/>./migrations/postgres/]
+        CASMIG[Cassandra Migrations<br/>./migrations/cassandra/]
     end
 
     subgraph "External Services"
@@ -31,14 +34,14 @@ graph TB
 
     subgraph "Infrastructure"
         ENV[Environment<br/>.env]
-        DOCKER[Docker Compose<br/>PostgreSQL Container]
+        DOCKER[Docker Compose]
     end
 
     %% Client connections
     C --> G
     F --> G
 
-    %% API Layer connections
+    %% API Layer
     G --> CORS
     CORS --> AH
     AH --> AR
@@ -46,16 +49,20 @@ graph TB
 
     %% Service to Implementation
     AR -.-> PAR
+    AR -.-> CAR
     ITR -.-> ITRAPL
 
     %% Data connections
     PAR --> PG
-    MIG --> PG
+    CAR --> CAS
+    PGMIG --> PG
+    CASMIG --> CAS
     ITRAPL --> ITUNES
 
     %% Infrastructure
     ENV -.-> G
-    DOCKER -.-> PG
+    DOCKER --> PG
+    DOCKER --> CAS
 
     %% Styling
     classDef client fill:#e1f5fe
@@ -69,7 +76,7 @@ graph TB
     class C,F client
     class G,AH,CORS api
     class AR,ITR service
-    class PAR,ITRAPL impl
-    class PG,MIG data
+    class PAR,CAR,ITRAPL impl
+    class PG,CAS,PGMIG,CASMIG data
     class ITUNES external
     class ENV,DOCKER infra

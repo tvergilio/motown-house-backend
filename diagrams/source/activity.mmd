@@ -2,7 +2,7 @@ sequenceDiagram
     participant Client
     participant Handler as Album Handler
     participant Repo as Album Repository
-    participant DB as PostgreSQL
+    participant DB as Database (Postgres or Cassandra)
     participant iTunes as iTunes API
     
     Note over Client, iTunes: Album CRUD Operations
@@ -10,7 +10,7 @@ sequenceDiagram
     Client->>+Handler: POST /albums (Create Album)
     Handler->>Handler: Validate JSON & Fields
     Handler->>+Repo: Create(album)
-    Repo->>+DB: INSERT INTO albums
+    Repo->>+DB: INSERT album
     DB-->>-Repo: Success/Error
     Repo-->>-Handler: Album/Error
     Handler-->>-Client: 201 Created / 400 Bad Request
@@ -18,7 +18,7 @@ sequenceDiagram
     Client->>+Handler: GET /albums/:id (Get Album)
     Handler->>Handler: Validate ID
     Handler->>+Repo: GetByID(id)
-    Repo->>+DB: SELECT FROM albums WHERE id = ?
+    Repo->>+DB: SELECT album by ID
     DB-->>-Repo: Album Data/Not Found
     Repo-->>-Handler: Album/Error
     Handler-->>-Client: 200 OK / 404 Not Found
@@ -26,7 +26,7 @@ sequenceDiagram
     Client->>+Handler: PUT /albums/:id (Update Album)
     Handler->>Handler: Validate ID & JSON
     Handler->>+Repo: Update(album)
-    Repo->>+DB: UPDATE albums SET ... WHERE id = ?
+    Repo->>+DB: UPDATE album
     DB-->>-Repo: Success/Error
     Repo-->>-Handler: Updated Album/Error
     Handler-->>-Client: 200 OK / 500 Internal Error
@@ -34,7 +34,7 @@ sequenceDiagram
     Client->>+Handler: DELETE /albums/:id (Delete Album)
     Handler->>Handler: Validate ID
     Handler->>+Repo: Delete(id)
-    Repo->>+DB: DELETE FROM albums WHERE id = ?
+    Repo->>+DB: DELETE album by ID
     DB-->>-Repo: Success/Error
     Repo-->>-Handler: Success/Error
     Handler-->>-Client: 204 No Content / 404 Not Found

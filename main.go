@@ -7,9 +7,9 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 
-	"example.com/web-service-gin/db"
-	"example.com/web-service-gin/handlers"
-	"example.com/web-service-gin/repository"
+	"github.com/tvergilio/motown-house-backend/db"
+	"github.com/tvergilio/motown-house-backend/handlers"
+	"github.com/tvergilio/motown-house-backend/repository"
 )
 
 func seedAlbums(repo repository.AlbumRepository) {

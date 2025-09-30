@@ -3,9 +3,9 @@ package db
 import (
 	"fmt"
 
-	"example.com/web-service-gin/config"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
+	"github.com/tvergilio/motown-house-backend/config"
 )
 
 // ConnectPostgres returns a *sqlx.DB connected to Postgres using configuration from cfg.

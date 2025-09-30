@@ -3,7 +3,7 @@ package handlers
 import (
 	"os"
 
-	"example.com/web-service-gin/repository"
+	"github.com/tvergilio/motown-house-backend/repository"
 )
 
 // In-memory mock implementation of AlbumRepository for testing
