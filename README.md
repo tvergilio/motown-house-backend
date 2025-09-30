@@ -1,8 +1,8 @@
-# Motown House API Backend
+# Motown House Full-Stack Application
 
-A RESTful API for managing music albums built with Go and Gin. Features CRUD operations and iTunes integration.
+A complete music album management system with Go/Gin backend and Next.js frontend. Features CRUD operations, iTunes integration, and multi-database support.
 
-**Frontend**: [Next.js project](https://github.com/tvergilio/motown-house)
+**Frontend**: Integrated via Docker Compose using [tvergilio/motown-house](https://github.com/tvergilio/motown-house)
 
 ## Architecture
 
@@ -37,7 +37,7 @@ POSTGRES_URL=postgres://myuser:mypassword@localhost:5432/mydb?sslmode=disable
 CASSANDRA_HOSTS=localhost:9042
 CASSANDRA_KEYSPACE=motown
 
-# 3. Start services
+# 3. Start complete stack (frontend + backend + databases)
 docker-compose up -d
 
 # 4. Setup keyspace and run migrations
@@ -54,7 +54,8 @@ migrate -path ./migrations/cassandra -database "cassandra://localhost:9042/motow
 go run main.go
 ```
 
-Server runs on `http://localhost:8080`
+- **Frontend**: `http://localhost:3000` (Next.js UI)
+- **Backend API**: `http://localhost:8080` (Go/Gin server)
 
 ## Database Switching
 
@@ -71,6 +72,22 @@ docker-compose restart app
 ```
 
 **Note**: Data is separate between backends. Each database maintains its own dataset.
+
+## Full-Stack Deployment
+
+The complete application stack includes:
+- **Frontend**: Next.js web application (`tvergilio/motown-house:latest`)
+- **Backend**: Go API server (built from local Dockerfile)
+- **Databases**: PostgreSQL and Cassandra (switch via `DB_BACKEND`)
+
+```bash
+# Complete stack deployment
+docker-compose up -d
+
+# Access applications:
+# Frontend: http://localhost:3000
+# Backend API: http://localhost:8080
+```
 
 ## API Endpoints
 
