@@ -38,18 +38,31 @@ func seedAlbums(repo repository.AlbumRepository) {
 
 func main() {
 	_ = godotenv.Load()
-	database, err := db.Connect()
+
+	dbConn, err := db.ConnectFromEnv()
 	if err != nil {
 		log.Fatalf("Failed to connect to DB: %v", err)
 	}
 	// Handle error from Close
 	defer func() {
-		if err := database.Close(); err != nil {
+		if err := dbConn.Close(); err != nil {
 			log.Printf("Error closing database: %v", err)
 		}
 	}()
 
-	repo := repository.NewPostgresAlbumRepository(database)
+	// Select repository implementation based on database backend
+	var repo repository.AlbumRepository
+	switch dbConn.Backend {
+	case "postgres":
+		log.Printf("Using Postgres backend")
+		repo = repository.NewPostgresAlbumRepository(dbConn.PostgresDB)
+	case "cassandra":
+		log.Printf("Using Cassandra backend")
+		repo = repository.NewCassandraAlbumRepository(dbConn.CassandraDB)
+	default:
+		log.Fatalf("Unsupported database backend: %s", dbConn.Backend)
+	}
+
 	itunesRepo := repository.NewITunesRepository()
 	seedAlbums(repo)
 	handler := handlers.NewAlbumHandler(repo, itunesRepo)

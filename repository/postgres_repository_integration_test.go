@@ -6,6 +6,8 @@ import (
 	"testing"
 	"time"
 
+	"example.com/web-service-gin/config"
+	"example.com/web-service-gin/db"
 	migrate "github.com/golang-migrate/migrate/v4"
 	migratepg "github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
@@ -17,7 +19,7 @@ import (
 )
 
 // migrationsPath points to the directory containing the migration SQL files.
-var migrationsPath = "../migrations"
+var migrationsPath = "../migrations/postgres"
 
 // setupTestPostgres spins up a temporary Postgres container, runs migrations, and returns a connected *sqlx.DB and a teardown function.
 func setupTestPostgres(t *testing.T) (*sqlx.DB, func()) {
@@ -30,9 +32,7 @@ func setupTestPostgres(t *testing.T) (*sqlx.DB, func()) {
 			Image:        "postgres:13",
 			ExposedPorts: []string{"5432/tcp"},
 			Env: map[string]string{
-				"POSTGRES_USER":     "testuser",
-				"POSTGRES_PASSWORD": "testpass",
-				"POSTGRES_DB":       "testdb",
+				"POSTGRES_HOST_AUTH_METHOD": "trust", // Allow connections without password
 			},
 			WaitingFor: wait.ForListeningPort("5432/tcp").WithStartupTimeout(60 * time.Second),
 		},
@@ -45,22 +45,28 @@ func setupTestPostgres(t *testing.T) (*sqlx.DB, func()) {
 	require.NoError(t, err)
 	port, err := container.MappedPort(ctx, "5432")
 	require.NoError(t, err)
-	dsn := fmt.Sprintf("postgres://testuser:testpass@%s:%s/testdb?sslmode=disable", host, port.Port())
+	dsn := fmt.Sprintf("postgres://postgres@%s:%s/postgres?sslmode=disable", host, port.Port())
 
-	// Connect to the Postgres database using sqlx
-	db, err := sqlx.Open("postgres", dsn)
+	// Create a test config using the dynamic container details
+	testConfig := &config.Config{
+		DBBackend:   "postgres",
+		PostgresURL: dsn,
+	}
+
+	// Connect to the Postgres database using the config system
+	database, err := db.ConnectPostgres(testConfig)
 	require.NoError(t, err)
 
 	// Wait for the database to be ready to accept connections
 	for i := 0; i < 10; i++ {
-		if err := db.Ping(); err == nil {
+		if err := database.Ping(); err == nil {
 			break
 		}
 		time.Sleep(1 * time.Second)
 	}
 
 	// Run migrations using golang-migrate to set up the schema
-	driver, err := migratepg.WithInstance(db.DB, &migratepg.Config{})
+	driver, err := migratepg.WithInstance(database.DB, &migratepg.Config{})
 	require.NoError(t, err)
 	m, err := migrate.NewWithDatabaseInstance(
 		"file://"+migrationsPath,
@@ -72,10 +78,10 @@ func setupTestPostgres(t *testing.T) (*sqlx.DB, func()) {
 
 	// Return the db connection and a teardown function to clean up resources
 	teardown := func() {
-		_ = db.Close()
+		_ = database.Close()
 		_ = container.Terminate(ctx)
 	}
-	return db, teardown
+	return database, teardown
 }
 
 // TestPostgresAlbumRepository_Create tests only the Create method.
