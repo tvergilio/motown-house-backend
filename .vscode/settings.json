@@ -4,5 +4,16 @@
   "go.buildTags": "integration",
   "go.testEnvVars": {
     "CGO_ENABLED": "1"
-  }
+},
+"sqltools.connections": [
+    {
+        "server": "localhost",
+        "port": 9042,
+        "previewLimit": 50,
+        "askForPassword": false,
+        "driver": "Cassandra",
+        "name": "motown",
+        "database": "motown"
+    }
+]
 }
