@@ -16,7 +16,7 @@ func (m *mockAlbumRepo) GetAll() ([]repository.Album, error) {
 	return m.albums, nil
 }
 
-func (m *mockAlbumRepo) GetByID(id int) (repository.Album, error) {
+func (m *mockAlbumRepo) GetByID(id string) (repository.Album, error) {
 	for _, a := range m.albums {
 		if a.ID == id {
 			return a, nil
@@ -40,7 +40,7 @@ func (m *mockAlbumRepo) Update(album repository.Album) error {
 	return os.ErrNotExist // Return error if album not found
 }
 
-func (m *mockAlbumRepo) Delete(id int) error {
+func (m *mockAlbumRepo) Delete(id string) error {
 	for i, a := range m.albums {
 		if a.ID == id {
 			m.albums = append(m.albums[:i], m.albums[i+1:]...)
@@ -79,9 +79,9 @@ func (m *mockITunesRepo) Search(term string) ([]repository.AlbumResponse, error)
 func newTestHandler() *AlbumHandler {
 	mockRepo := &mockAlbumRepo{
 		albums: []repository.Album{
-			{ID: 1, Title: "Thriller", Artist: "Michael Jackson", Price: 25.99, Year: 1982, ImageUrl: "https://example.com/thriller.jpg", Genre: "Pop"},
-			{ID: 2, Title: "Songs in the Key of Life", Artist: "Stevie Wonder", Price: 42.50, Year: 1976, ImageUrl: "https://example.com/songs.jpg", Genre: "Motown"},
-			{ID: 101, Title: "Thriller", Artist: "Michael Jackson", Price: 42.99, Year: 1982, ImageUrl: "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/32/4f/fd/324ffda2-9e51-8f6a-0c2d-c6fd2b41ac55/074643811224.jpg/100x100bb.jpg", Genre: "Pop"},
+			{ID: "1", Title: "Thriller", Artist: "Michael Jackson", Price: 25.99, Year: 1982, ImageUrl: "https://example.com/thriller.jpg", Genre: "Pop"},
+			{ID: "2", Title: "Songs in the Key of Life", Artist: "Stevie Wonder", Price: 42.50, Year: 1976, ImageUrl: "https://example.com/songs.jpg", Genre: "Motown"},
+			{ID: "101", Title: "Thriller", Artist: "Michael Jackson", Price: 42.99, Year: 1982, ImageUrl: "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/32/4f/fd/324ffda2-9e51-8f6a-0c2d-c6fd2b41ac55/074643811224.jpg/100x100bb.jpg", Genre: "Pop"},
 		},
 	}
 	mockITunesRepo := &mockITunesRepo{}

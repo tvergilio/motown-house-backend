@@ -116,7 +116,7 @@ func Test_PostAlbums_Success(t *testing.T) {
 	w := httptest.NewRecorder()
 	c, _ := gin.CreateTestContext(w)
 
-	album := repository.Album{ID: 104, Title: "Bad", Artist: "Michael Jackson", Price: 29.99, Year: 1987, ImageUrl: "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/8d/97/f4/8d97f427-2d17-1a51-1714-324483eb5fc1/886443546264.jpg/100x100bb.jpg", Genre: "Pop"}
+	album := repository.Album{ID: "104", Title: "Bad", Artist: "Michael Jackson", Price: 29.99, Year: 1987, ImageUrl: "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/8d/97/f4/8d97f427-2d17-1a51-1714-324483eb5fc1/886443546264.jpg/100x100bb.jpg", Genre: "Pop"}
 	jsonBytes, _ := json.Marshal(album)
 	c.Request = httptest.NewRequest("POST", "/albums", io.NopCloser(bytes.NewReader(jsonBytes)))
 	c.Request.Header.Set("Content-Type", "application/json")
@@ -152,7 +152,7 @@ func Test_PutAlbums_Success(t *testing.T) {
 	w := httptest.NewRecorder()
 
 	updatedAlbum := repository.Album{
-		ID:       101,
+		ID:       "101",
 		Title:    "Thriller 25",
 		Artist:   "Michael Jackson",
 		Price:    45.99,
@@ -192,7 +192,7 @@ func Test_PutAlbums_NonExistentID(t *testing.T) {
 	r := setupRouter(handler)
 	w := httptest.NewRecorder()
 
-	updatedAlbum := repository.Album{ID: 999, Title: "Ghost Album", Artist: "Nobody", Price: 10.0, Year: 2000, ImageUrl: "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/8d/97/f4/8d97f427-2d17-1a51-1714-324483eb5fc1/886443546264.jpg/100x100bb.jpg", Genre: "Pop"}
+	updatedAlbum := repository.Album{ID: "999", Title: "Ghost Album", Artist: "Nobody", Price: 10.0, Year: 2000, ImageUrl: "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/8d/97/f4/8d97f427-2d17-1a51-1714-324483eb5fc1/886443546264.jpg/100x100bb.jpg", Genre: "Pop"}
 	jsonBytes, _ := json.Marshal(updatedAlbum)
 	req := httptest.NewRequest("PUT", "/albums/999", bytes.NewReader(jsonBytes))
 	req.Header.Set("Content-Type", "application/json")
@@ -206,7 +206,7 @@ func Test_PutAlbums_IDMismatch(t *testing.T) {
 	r := setupRouter(handler)
 	w := httptest.NewRecorder()
 
-	updatedAlbum := repository.Album{ID: 102, Title: "Mismatch", Artist: "Test", Price: 20.0, Year: 2020, ImageUrl: "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/8d/97/f4/8d97f427-2d17-1a51-1714-324483eb5fc1/886443546264.jpg/100x100bb.jpg", Genre: "Pop"}
+	updatedAlbum := repository.Album{ID: "102", Title: "Mismatch", Artist: "Test", Price: 20.0, Year: 2020, ImageUrl: "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/8d97f427-2d17-1a51-1714-324483eb5fc1/886443546264.jpg/100x100bb.jpg", Genre: "Pop"}
 	jsonBytes, _ := json.Marshal(updatedAlbum)
 	req := httptest.NewRequest("PUT", "/albums/101", bytes.NewReader(jsonBytes))
 	req.Header.Set("Content-Type", "application/json")
@@ -215,7 +215,7 @@ func Test_PutAlbums_IDMismatch(t *testing.T) {
 	assert.Equal(t, http.StatusOK, w.Code)
 	var resp repository.Album
 	_ = json.Unmarshal(w.Body.Bytes(), &resp)
-	assert.Equal(t, 101, resp.ID) // Should use URI ID
+	assert.Equal(t, "101", resp.ID) // Should use URI ID
 }
 
 func Test_PutAlbums_MissingFields(t *testing.T) {
@@ -251,7 +251,7 @@ func Test_PutAlbums_NegativePriceOrYear(t *testing.T) {
 	r := setupRouter(handler)
 	w := httptest.NewRecorder()
 
-	updatedAlbum := repository.Album{ID: 101, Title: "Negative", Artist: "Test", Price: -10.0, Year: -1980, ImageUrl: "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/8d/97/f4/8d97f427-2d17-1a51-1714-324483eb5fc1/886443546264.jpg/100x100bb.jpg", Genre: "Pop"}
+	updatedAlbum := repository.Album{ID: "101", Title: "Negative", Artist: "Test", Price: -10.0, Year: -1980, ImageUrl: "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/8d/97/f4/8d97f427-2d17-1a51-1714-324483eb5fc1/886443546264.jpg/100x100bb.jpg", Genre: "Pop"}
 	jsonBytes, _ := json.Marshal(updatedAlbum)
 	req := httptest.NewRequest("PUT", "/albums/101", bytes.NewReader(jsonBytes))
 	req.Header.Set("Content-Type", "application/json")
@@ -298,7 +298,7 @@ func Test_PutAlbums_LargePayload(t *testing.T) {
 	for i := range largeTitle {
 		largeTitle[i] = 'A'
 	}
-	updatedAlbum := repository.Album{ID: 101, Title: string(largeTitle), Artist: "Test", Price: 10.0, Year: 2020, ImageUrl: "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/8d/97/f4/8d97f427-2d27-1a51-1714-324483eb5fc1/886443546264.jpg/100x100bb.jpg", Genre: "Motown"}
+	updatedAlbum := repository.Album{ID: "101", Title: string(largeTitle), Artist: "Test", Price: 10.0, Year: 2020, ImageUrl: "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/8d/97/f4/8d97f427-2d27-1a51-1714-324483eb5fc1/886443546264.jpg/100x100bb.jpg", Genre: "Motown"}
 	jsonBytes, _ := json.Marshal(updatedAlbum)
 	req := httptest.NewRequest("PUT", "/albums/101", bytes.NewReader(jsonBytes))
 	req.Header.Set("Content-Type", "application/json")
@@ -342,28 +342,28 @@ func Test_DeleteAlbum_NotFound(t *testing.T) {
 	assert.Contains(t, w.Body.String(), "album not found")
 }
 
-func Test_GetAlbumByID_InvalidID(t *testing.T) {
+func Test_GetAlbumByID_NonExistentID(t *testing.T) {
 	handler := newTestHandler()
 	r := setupRouter(handler)
 	w := httptest.NewRecorder()
-	req := httptest.NewRequest("GET", "/albums/abc", nil)
+	req := httptest.NewRequest("GET", "/albums/nonexistent", nil)
 
 	r.ServeHTTP(w, req)
 
-	assert.Equal(t, http.StatusBadRequest, w.Code)
-	assert.Contains(t, w.Body.String(), "invalid album ID")
+	assert.Equal(t, http.StatusNotFound, w.Code)
+	assert.Contains(t, w.Body.String(), "album not found")
 }
 
-func Test_DeleteAlbum_InvalidID(t *testing.T) {
+func Test_DeleteAlbum_NonExistentID(t *testing.T) {
 	handler := newTestHandler()
 	r := setupRouter(handler)
 	w := httptest.NewRecorder()
-	req := httptest.NewRequest("DELETE", "/albums/abc", nil)
+	req := httptest.NewRequest("DELETE", "/albums/nonexistent", nil)
 
 	r.ServeHTTP(w, req)
 
-	assert.Equal(t, http.StatusBadRequest, w.Code)
-	assert.Contains(t, w.Body.String(), "invalid album ID")
+	assert.Equal(t, http.StatusNotFound, w.Code)
+	assert.Contains(t, w.Body.String(), "album not found")
 }
 
 func Test_SearchAlbums_MissingTerm(t *testing.T) {

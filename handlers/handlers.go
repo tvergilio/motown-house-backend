@@ -32,16 +32,16 @@ func (h *AlbumHandler) GetAlbums(c *gin.Context) {
 // AlbumIDUri is used for binding and validating the `id` URI parameter in routes like /albums/:id.
 // This struct is specific to HTTP request handling and should not be used in the domain or repository layers.
 type AlbumIDUri struct {
-	ID int `uri:"id" binding:"required"`
+	ID string `uri:"id" binding:"required"`
 }
 
 // getAlbumIDFromUri extracts and validates the `id` URI parameter from the context.
-// Returns the id as int and true if successful, otherwise writes a standardised error response and returns false.
-func getAlbumIDFromUri(c *gin.Context) (int, bool) {
+// Returns the id as string and true if successful, otherwise writes a standardised error response and returns false.
+func getAlbumIDFromUri(c *gin.Context) (string, bool) {
 	var uri AlbumIDUri
 	if err := c.ShouldBindUri(&uri); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"message": "invalid album ID"})
-		return 0, false
+		return "", false
 	}
 	return uri.ID, true
 }

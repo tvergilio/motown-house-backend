@@ -18,7 +18,7 @@ func (r *PostgresAlbumRepository) GetAll() ([]Album, error) {
 	return albums, err
 }
 
-func (r *PostgresAlbumRepository) GetByID(id int) (Album, error) {
+func (r *PostgresAlbumRepository) GetByID(id string) (Album, error) {
 	var album Album
 	err := r.db.Get(&album, "SELECT id, title, artist, price, year, image_url, genre FROM albums WHERE id = $1", id)
 	return album, err
@@ -40,7 +40,7 @@ func (r *PostgresAlbumRepository) Update(album Album) error {
 	return err
 }
 
-func (r *PostgresAlbumRepository) Delete(id int) error {
+func (r *PostgresAlbumRepository) Delete(id string) error {
 	_, err := r.db.Exec("DELETE FROM albums WHERE id = $1", id)
 	return err
 }
