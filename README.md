@@ -73,6 +73,18 @@ docker-compose restart app
 
 **Note**: Data is separate between backends. Each database maintains its own dataset.
 
+### Multi-Node Cassandra Setup
+
+For distributed Cassandra deployment with multiple nodes:
+
+```bash
+# Checkout the distributed setup tag
+git checkout distributed-cassandra-v1.0
+
+# Start multi-node Cassandra cluster
+docker-compose up cassandra cassandra-2 cassandra-3 -d
+```
+
 ## Full-Stack Deployment
 
 The complete application stack includes:
