@@ -19,7 +19,7 @@ services:
     volumes:
       - cassandradata:/var/lib/cassandra
 
-  app:
+  api:
     build: .
     depends_on:
       - postgres
@@ -27,6 +27,16 @@ services:
       - .env
     ports:
       - "8080:8080"
+    restart: unless-stopped
+
+  frontend:
+    image: tvergilio/motown-house:latest
+    ports:
+      - "3000:3000"
+    depends_on:
+      - api
+    environment:
+      - NEXT_PUBLIC_API_URL=http://api:8080
     restart: unless-stopped
 
 volumes:

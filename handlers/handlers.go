@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"net/http"
 
-	"example.com/web-service-gin/repository"
 	"github.com/gin-gonic/gin"
+	"github.com/tvergilio/motown-house-backend/repository"
 )
 
 type AlbumHandler struct {

@@ -13,7 +13,7 @@ flowchart TD
     
     %% Get All Albums Flow
     GetAll --> RepoGetAll[repo.GetAll]
-    RepoGetAll --> DBQuery1[(SELECT * FROM albums)]
+    RepoGetAll --> DBQuery1[(Query all albums)]
     DBQuery1 --> ReturnJSON1[Return JSON Array]
     ReturnJSON1 --> End1([200 OK])
     
@@ -21,7 +21,7 @@ flowchart TD
     GetByID --> ValidateID{Valid ID?}
     ValidateID -->|No| BadRequest1[400 Bad Request]
     ValidateID -->|Yes| RepoGetByID[repo.GetByID]
-    RepoGetByID --> DBQuery2[(SELECT * FROM albums WHERE id = ?)]
+    RepoGetByID --> DBQuery2[(Fetch album by ID)]
     DBQuery2 --> Found{Album Found?}
     Found -->|No| NotFound[404 Not Found]
     Found -->|Yes| ReturnJSON2[Return Album JSON]
@@ -33,7 +33,7 @@ flowchart TD
     ValidateJSON1 -->|Yes| ValidateFields1{Required Fields?}
     ValidateFields1 -->|No| BadRequest3[400 Bad Request]
     ValidateFields1 -->|Yes| RepoCreate[repo.Create]
-    RepoCreate --> DBInsert[(INSERT INTO albums)]
+    RepoCreate --> DBInsert[(Insert new album)]
     DBInsert --> ReturnCreated[Return Created Album]
     ReturnCreated --> End3([201 Created])
     
@@ -45,7 +45,7 @@ flowchart TD
     ValidateJSON2 -->|Yes| ValidateFields2{Required Fields?}
     ValidateFields2 -->|No| BadRequest6[400 Bad Request]
     ValidateFields2 -->|Yes| RepoUpdate[repo.Update]
-    RepoUpdate --> DBUpdate[(UPDATE albums WHERE id = ?)]
+    RepoUpdate --> DBUpdate[(Update album by ID)]
     DBUpdate --> UpdateSuccess{Update Success?}
     UpdateSuccess -->|No| ServerError1[500 Internal Server Error]
     UpdateSuccess -->|Yes| ReturnUpdated[Return Updated Album]
@@ -55,7 +55,7 @@ flowchart TD
     Delete --> ValidateID3{Valid ID?}
     ValidateID3 -->|No| BadRequest7[400 Bad Request]
     ValidateID3 -->|Yes| RepoDelete[repo.Delete]
-    RepoDelete --> DBDelete[(DELETE FROM albums WHERE id = ?)]
+    RepoDelete --> DBDelete[(Delete album by ID)]
     DBDelete --> DeleteSuccess{Delete Success?}
     DeleteSuccess -->|No| NotFound2[404 Not Found]
     DeleteSuccess -->|Yes| End5([204 No Content])

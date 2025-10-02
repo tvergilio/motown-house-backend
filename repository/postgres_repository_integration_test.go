@@ -6,8 +6,6 @@ import (
 	"testing"
 	"time"
 
-	"example.com/web-service-gin/config"
-	"example.com/web-service-gin/db"
 	migrate "github.com/golang-migrate/migrate/v4"
 	migratepg "github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
@@ -16,6 +14,8 @@ import (
 	"github.com/stretchr/testify/require"
 	"github.com/testcontainers/testcontainers-go"
 	"github.com/testcontainers/testcontainers-go/wait"
+	"github.com/tvergilio/motown-house-backend/config"
+	"github.com/tvergilio/motown-house-backend/db"
 )
 
 // migrationsPath points to the directory containing the migration SQL files.
