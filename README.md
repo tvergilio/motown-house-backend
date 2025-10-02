@@ -72,6 +72,22 @@ docker-compose restart app
 
 **Note**: Data is separate between backends. Each database maintains its own dataset.
 
+## Full-Stack Deployment
+
+The complete application stack includes:
+- **Frontend**: Next.js web application (`tvergilio/motown-house:latest`)
+- **Backend**: Go API server (built from local Dockerfile)
+- **Databases**: PostgreSQL and Cassandra (switch via `DB_BACKEND`)
+
+```bash
+# Complete stack deployment
+docker-compose up -d
+
+# Access applications:
+# Frontend: http://localhost:3000
+# Backend API: http://localhost:8080
+```
+
 ## API Endpoints
 
 The following diagrams illustrate how requests are processed through the system:
